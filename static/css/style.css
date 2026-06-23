@@ -1,0 +1,50 @@
+body {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+main.container {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+h1 {
+    font-weight: 700;
+    letter-spacing: 0.5rem;
+}
+
+.lead {
+    color: #495057;
+    margin-bottom: 0.3px;
+}
+
+.hero-note {
+    color: #6c757d;
+    max-width: 720px;
+}
+.hero {
+    background: linear-gradient(135deg, #1f2a37, #4b2e19);
+}
+  
+.hero-sub {
+    max-width: 700px;
+    margin: 0 auto;
+    opacity: 0.95;
+}
+  
+.trust-box {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    font-weight: 600;
+}
+  
+.tour-card {
+    border: 1px solid #e9ecef;
+    transition: transform 0.2s ease;
+}
+  
+.tour-card:hover {
+    transform: translateY(-4px);
+}
