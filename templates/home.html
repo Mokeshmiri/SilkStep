@@ -2,10 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SilkStep</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SilkStep | Free Walking Tours in Tehran</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <h1>SilkStep</h1>
-  <p>Every step tells a story.</p>
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">SilkStep</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#tours">Tours</a></li>
+          <li class="nav-item"><a class="nav-link" href="#why">Why SilkStep</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Log in</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Register</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero text-center text-white">
+    <div class="container py-5">
+      <h1 class="display-4 fw-bold">SilkStep</h1>
+      <p class="lead mb-3">Every step tells a story.</p>
+      <p class="hero-sub mb-4">Free walking tours in Tehran, inspired by Silk Road history.</p>
+      <a href="#tours" class="btn btn-light btn-lg">Browse tours</a>
+    </div>
+  </header>
+
+  <section class="container py-4">
+    <div class="row g-3 text-center">
+      <div class="col-md-4">
+        <div class="trust-box">Free to join</div>
+      </div>
+      <div class="col-md-4">
+        <div class="trust-box">Local guides</div>
+      </div>
+      <div class="col-md-4">
+        <div class="trust-box">Tehran heritage routes</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tours" class="container py-5">
+    <h2 class="mb-4">Popular tours in Tehran</h2>
+    <div class="row g-4">
+
+      <div class="col-md-4">
+        <div class="card tour-card h-100">
+          <div class="card-body">
+            <span class="badge bg-success mb-2">Free tour</span>
+            <h3 class="h5">Old Tehran Walking Tour</h3>
+            <p class="text-muted small">Sat & Sun · 10:00 AM</p>
+            <p>Explore Golestan area, old gates, and historic city texture.</p>
+            <a href="#" class="btn btn-outline-primary btn-sm">View tour</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card tour-card h-100">
+          <div class="card-body">
+            <span class="badge bg-success mb-2">Free tour</span>
+            <h3 class="h5">Grand Bazaar & Caravanserai Walk</h3>
+            <p class="text-muted small">Fri · 4:00 PM</p>
+            <p>Markets, trade history, and Silk Road commercial culture.</p>
+            <a href="#" class="btn btn-outline-primary btn-sm">View tour</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card tour-card h-100">
+          <div class="card-body">
+            <span class="badge bg-success mb-2">Free tour</span>
+            <h3 class="h5">20th Century Tehran Tour</h3>
+            <p class="text-muted small">Sat · 1:00 PM</p>
+            <p>Modern heritage, architecture, and city transformation.</p>
+            <a href="#" class="btn btn-outline-primary btn-sm">View tour</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="why" class="bg-light py-5">
+    <div class="container">
+      <h2 class="mb-3">Why SilkStep?</h2>
+      <p class="mb-0">
+        SilkStep connects travelers with local guides through themed walking routes in Tehran.
+        Like platforms such as FREETOUR and Persian Walk, we focus on authentic city stories —
+        but our project is built as a Flask web app with booking and guide management for the course exam.
+      </p>
+    </div>
+  </section>
+
+  <footer class="bg-dark text-white py-3 mt-4">
+    <div class="container small">
+      &copy; 2026 SilkStep — Mo Mokashmiri (S308968)
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
