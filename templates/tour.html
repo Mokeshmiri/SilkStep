@@ -23,6 +23,16 @@
           <p class="text-muted small">{{ tour.schedule }}</p>
           <p>{{ tour.summary }}</p>
           <a href="#" class="btn btn-outline-primary btn-sm">View tour</a>
+          {% if session.get('user_role') == 'admin' or (session.get('user_role') == 'guide' and tour.guide_id == session.get('user_id')) %}
+          <a href="{{ url_for('edit_tour', tour_id=tour.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+        
+          <form method="POST" action="{{ url_for('delete_tour_route', tour_id=tour.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger btn-sm"
+                    onclick="return confirm('Delete this tour?');">
+              Delete
+            </button>
+          </form>
+        {% endif %}
         </div>
       </div>
     </div>

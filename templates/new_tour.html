@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}New Tour | SilkStep{% endblock %}
+
+{% block content %}
+<section class="container py-5" style="max-width: 600px;">
+  <h1 class="mb-4">Create a new tour</h1>
+
+  <form method="POST" action="{{ url_for('new_tour') }}">
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input type="text" name="txt_title" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Schedule</label>
+      <input type="text" name="txt_schedule" class="form-control" placeholder="Sat & Sun at 10:00 AM" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Duration</label>
+      <input type="text" name="txt_duration" class="form-control" placeholder="3 hours" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Payment type</label>
+      <select name="txt_payment" class="form-select" required>
+        <option value="Free Tour">Free Tour</option>
+        <option value="Paid Tour">Paid Tour</option>
+        <option value="Exclusive Tour">Exclusive Tour</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Summary</label>
+      <textarea name="txt_summary" class="form-control" rows="4" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create tour</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Admin | SilkStep{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <h1 class="mb-4">Admin dashboard</h1>
+  <ul class="list-group">
+    <li class="list-group-item">Total tours: {{ stats.tours_count }}</li>
+    <li class="list-group-item">Total users: {{ stats.users_count }}</li>
+    <li class="list-group-item">Guides: {{ stats.guides_count }}</li>
+    <li class="list-group-item">Participants: {{ stats.participants_count }}</li>
+  </ul>
+</section>
+{% endblock %}

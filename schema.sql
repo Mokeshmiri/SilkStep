@@ -16,3 +16,5 @@ INSERT INTO tours (title, schedule, duration, payment, summary) VALUES
  'Visit the National Museum of Iran and explore the city''s vibrant art scene.'),
 ('Private Walking Tour', 'to be defined', 'Max 12 hours', 'Exclusive Tour',
  'Customized walking tour for groups or individuals, tailored to your interests and schedule.');
+
+ ALTER TABLE tours ADD COLUMN guide_id INTEGER;
