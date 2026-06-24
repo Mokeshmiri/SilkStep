@@ -48,3 +48,7 @@ h1 {
 .tour-card:hover {
     transform: translateY(-4px);
 }
+.badge-exclusive {
+    background-color: #b8860b;
+    color: #fff;
+  }

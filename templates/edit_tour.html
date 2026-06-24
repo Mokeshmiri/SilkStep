@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Edit Tour | SilkStep{% endblock %}
+
+{% block content %}
+<section class="container py-5" style="max-width: 600px;">
+  <h1 class="mb-4">Edit tour</h1>
+
+  <form method="POST" action="{{ url_for('edit_tour', tour_id=tour.id) }}">
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input type="text" name="txt_title" class="form-control" value="{{ tour.title }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Schedule</label>
+      <input type="text" name="txt_schedule" class="form-control" value="{{ tour.schedule }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Duration</label>
+      <input type="text" name="txt_duration" class="form-control" value="{{ tour.duration }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Payment type</label>
+      <select name="txt_payment" class="form-select" required>
+        <option value="Free Tour" {% if tour.payment == "Free Tour" %}selected{% endif %}>Free Tour</option>
+        <option value="Paid Tour" {% if tour.payment == "Paid Tour" %}selected{% endif %}>Paid Tour</option>
+        <option value="Exclusive Tour" {% if tour.payment == "Exclusive Tour" %}selected{% endif %}>Exclusive Tour</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Summary</label>
+      <textarea name="txt_summary" class="form-control" rows="4" required>{{ tour.summary }}</textarea>    </div>
+
+    <button type="submit" class="btn btn-primary">Edit tour</button>
+  </form>
+</section>
+{% endblock %}
