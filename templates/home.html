@@ -6,7 +6,7 @@
       <h1 class="display-4 fw-bold">SilkStep</h1>
       <p class="lead mb-3">Every step tells a story.</p>
       <p class="hero-sub mb-4">Free walking tours in Tehran, inspired by Silk Road history.</p>
-      <a href="#tours" class="btn btn-light btn-lg">Browse tours</a>
+      <a href="{{ url_for('tours') }}" class="btn btn-light btn-lg">Browse tours</a>
     </div>
   </header>
 
@@ -28,41 +28,28 @@
     <h2 class="mb-4">Popular tours in Tehran</h2>
     <div class="row g-4">
 
+      {% for tour in tours %}
       <div class="col-md-4">
         <div class="card tour-card h-100">
+          {% if tour.photo_src %}
+            <img src="{{ tour.photo_src }}" class="card-img-top" alt="{{ tour.title }}">
+          {% endif %}
           <div class="card-body">
-            <span class="badge bg-success mb-2">Paid tour</span>
-            <h3 class="h5">Old Tehran Walking Tour</h3>
-            <p class="text-muted small">Sat & Sun · 10:00 AM</p>
-            <p>Explore Golestan area, old gates, and historic city texture.</p>
-            <a href="#" class="btn btn-outline-primary btn-sm">View tour</a>
+            {% if tour.payment == "Free Tour" %}
+              <span class="badge bg-success mb-2">{{ tour.payment }}</span>
+            {% elif tour.payment == "Paid Tour" %}
+              <span class="badge bg-warning text-dark mb-2">{{ tour.payment }}</span>
+            {% else %}
+              <span class="badge bg-secondary mb-2">{{ tour.payment }}</span>
+            {% endif %}
+            <h3 class="h5">{{ tour.title }}</h3>
+            <p class="text-muted small"><strong>Languages:</strong> {{ tour.languages or "Not set" }}</p>
+            <p>{{ tour.summary }}</p>
+            <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">View tour</a>
           </div>
         </div>
       </div>
-
-      <div class="col-md-4">
-        <div class="card tour-card h-100">
-          <div class="card-body">
-            <span class="badge bg-success mb-2">Free tour</span>
-            <h3 class="h5">Grand Bazaar & Caravanserai Walk</h3>
-            <p class="text-muted small">Fri · 4:00 PM</p>
-            <p>Markets, trade history, and Silk Road commercial culture.</p>
-            <a href="#" class="btn btn-outline-primary btn-sm">View tour</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card tour-card h-100">
-          <div class="card-body">
-            <span class="badge bg-success mb-2">Free tour</span>
-            <h3 class="h5">20th Century Tehran Tour</h3>
-            <p class="text-muted small">Sat · 1:00 PM</p>
-            <p>Modern heritage, architecture, and city transformation.</p>
-            <a href="#" class="btn btn-outline-primary btn-sm">View tour</a>
-          </div>
-        </div>
-      </div>
+      {% endfor %}
 
     </div>
   </section>

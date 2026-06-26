@@ -5,7 +5,26 @@
 <section class="container py-5" style="max-width: 600px;">
   <h1 class="mb-4">Edit tour</h1>
 
-  <form method="POST" action="{{ url_for('edit_tour', tour_id=tour.id) }}">
+  {% if photos %}
+  <div class="mb-4">
+    <label class="form-label">Current photos ({{ photos|length }}/{{ max_photos }})</label>
+    <div class="row g-2">
+      {% for p in photos %}
+      <div class="col-4">
+        <img src="{{ url_for('static', filename=p.photo_path) }}" class="img-fluid rounded" alt="tour photo">
+        <form method="POST" action="{{ url_for('delete_tour_photo', photo_id=p.id) }}" class="mt-1">
+          <button type="submit" class="btn btn-outline-danger btn-sm"
+                  onclick="return confirm('Delete this photo?');">
+            Delete
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('edit_tour', tour_id=tour.id) }}" enctype="multipart/form-data">
     <div class="mb-3">
       <label class="form-label">Title</label>
       <input type="text" name="txt_title" class="form-control" value="{{ tour.title }}" required>
@@ -31,8 +50,56 @@
     </div>
 
     <div class="mb-3">
+      <label class="form-label">Languages offered</label>
+      <p class="text-muted small">Select one or more</p>
+
+      {% for lang in available_languages %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox"
+               name="txt_languages" value="{{ lang }}" id="lang_{{ loop.index }}"
+               {% if lang in tour.languages_list %}checked{% endif %}>
+        <label class="form-check-label" for="lang_{{ loop.index }}">{{ lang }}</label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
       <label class="form-label">Summary</label>
-      <textarea name="txt_summary" class="form-control" rows="4" required>{{ tour.summary }}</textarea>    </div>
+      <textarea name="txt_summary" class="form-control" rows="4" required>{{ tour.summary }}</textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Meeting point</label>
+      <input type="text" name="txt_meeting_point" class="form-control"
+             value="{{ tour.meeting_point or '' }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Meeting point map link</label>
+      <input type="url" name="txt_meeting_map_link" class="form-control"
+             value="{{ tour.meeting_map_link or '' }}"
+             placeholder="https://maps.google.com/...">
+      <p class="text-muted small mb-0">optional: paste google maps link for this meeting point</p>
+    </div>
+
+    <div class="mb-3" style="max-width: 280px;">
+      <label class="form-label">Max participants</label>
+      <p class="text-muted small">max number of people who can join this tour</p>
+      <input type="number" name="txt_max_participants" class="form-control"
+             min="1" max="100" value="{{ tour.max_participants or 15 }}" required>
+    </div>
+
+    {% if photos|length < max_photos %}
+    <div class="mb-3">
+      <label class="form-label">Add more photos</label>
+      <input type="file" name="txt_photos" class="form-control" accept="image/*" multiple>
+      <p class="text-muted small mb-0">
+        you can add {{ max_photos - photos|length }} more (max {{ max_photos }} total)
+      </p>
+    </div>
+    {% else %}
+    <p class="text-muted small">maximum {{ max_photos }} photos reached. delete one to upload another.</p>
+    {% endif %}
 
     <button type="submit" class="btn btn-primary">Edit tour</button>
   </form>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Tour Bookings | SilkStep{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+  <h1 class="mb-4">Bookings for my tours</h1>
+
+  {% if bookings %}
+    <div class="list-group">
+      {% for b in bookings %}
+        <div class="list-group-item">
+          <h2 class="h6 mb-1">
+            <a href="{{ url_for('tour_detail', tour_id=b.tour_id) }}" class="text-decoration-none">
+              {{ b.tour_title }}
+            </a>
+          </h2>
+          <p class="mb-1">Participant: {{ b.participant_name }} {{ b.participant_surname }} ({{ b.participant_email }})</p>
+          <p class="mb-1">Tour date: {{ b.tour_date }}</p>
+          <p class="mb-1">People: {{ b.party_size }}</p>
+          {% if b.notes %}
+            <p class="mb-1 text-muted small">Notes: {{ b.notes }}</p>
+          {% endif %}
+          <span class="badge bg-success">{{ b.status }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No bookings yet for your tours.</p>
+  {% endif %}
+</section>
+{% endblock %}
