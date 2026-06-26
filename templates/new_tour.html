@@ -5,7 +5,7 @@
 <section class="container py-5" style="max-width: 600px;">
   <h1 class="mb-4">Create a new tour</h1>
 
-  <form method="POST" action="{{ url_for('new_tour') }}">
+  <form method="POST" action="{{ url_for('new_tour') }}" enctype="multipart/form-data">
     <div class="mb-3">
       <label class="form-label">Title</label>
       <input type="text" name="txt_title" class="form-control" required>
@@ -31,8 +31,47 @@
     </div>
 
     <div class="mb-3">
+      <label class="form-label">Languages offered</label>
+      <p class="text-muted small">Select one or more</p>
+
+      {% for lang in available_languages %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox"
+               name="txt_languages" value="{{ lang }}" id="lang_{{ loop.index }}">
+        <label class="form-check-label" for="lang_{{ loop.index }}">{{ lang }}</label>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
       <label class="form-label">Summary</label>
       <textarea name="txt_summary" class="form-control" rows="4" required></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Meeting point</label>
+      <input type="text" name="txt_meeting_point" class="form-control"
+             placeholder="e.g. Golestan Palace main gate" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Meeting point map link</label>
+      <input type="url" name="txt_meeting_map_link" class="form-control"
+             placeholder="https://maps.google.com/...">
+      <p class="text-muted small mb-0">optional: paste google maps link for this meeting point</p>
+    </div>
+
+    <div class="mb-3" style="max-width: 280px;">
+      <label class="form-label">Max participants</label>
+      <p class="text-muted small">max number of people who can join this tour</p>
+      <input type="number" name="txt_max_participants" class="form-control"
+             min="1" max="100" value="15" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tour photos</label>
+      <input type="file" name="txt_photos" class="form-control" accept="image/*" multiple>
+      <p class="text-muted small mb-0">optional: up to 5 images (jpg, png, gif, webp)</p>
     </div>
 
     <button type="submit" class="btn btn-primary">Create tour</button>

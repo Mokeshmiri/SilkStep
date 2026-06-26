@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ tour.title }} | SilkStep{% endblock %}
+
+{% block content %}
+<section class="container py-5" style="max-width: 760px;">
+  <h1 class="mb-3">{{ tour.title }}</h1>
+  <p><strong>Schedule:</strong> {{ tour.schedule }}</p>
+  <p><strong>Duration:</strong> {{ tour.duration }}</p>
+  <p><strong>Payment:</strong> {{ tour.payment }}</p>
+  <p><strong>Languages:</strong> {{ tour.languages }}</p>
+  <p><strong>Meeting point:</strong> {{ tour.meeting_point or "Not set" }}</p>
+  {% if tour.meeting_map_link %}
+    <p><a href="{{ tour.meeting_map_link }}" target="_blank" rel="noopener">Open meeting point on map</a></p>
+  {% endif %}
+  <p><strong>Max participants:</strong> {{ tour.max_participants or "Not set" }}</p>
+
+  {% if photos %}
+    <h2 class="h6">Tour photos</h2>
+    <div class="row g-2 mb-3">
+      {% for p in photos %}
+      <div class="col-md-4">
+        <img src="{{ url_for('static', filename=p.photo_path) }}" class="img-fluid rounded" alt="{{ tour.title }}">
+      </div>
+      {% endfor %}
+    </div>
+  {% elif tour.photo_src %}
+    <div class="mb-3">
+      <img src="{{ tour.photo_src }}" alt="{{ tour.title }}" class="img-fluid rounded">
+    </div>
+  {% else %}
+    <p class="text-muted small">no photos for this tour yet</p>
+  {% endif %}
+  <p>{{ tour.summary }}</p>
+
+  {% if session.get('user_role') == 'participant' %}
+    <hr>
+    <h2 class="h5 mb-3">Book this tour</h2>
+    {% if booking_error %}
+      <div class="alert alert-warning mb-3">{{ booking_error }}</div>
+    {% endif %}
+    <form method="POST" action="{{ url_for('book_tour', tour_id=tour.id) }}">
+      <div class="mb-3" style="max-width: 280px;">
+        <label class="form-label">Tour date</label>
+        <input type="date" name="txt_tour_date" id="tour_date" class="form-control" required>
+        <p id="spots_info" class="text-muted small mb-0 mt-1">Pick a date to see spots left.</p>
+      </div>
+      <div class="mb-3" style="max-width: 280px;">
+        <label class="form-label">How many people?</label>
+        <input type="number" name="txt_party_size" id="party_size" class="form-control"
+               min="1" max="{{tour.max_participants or 15}}" value="1" required>
+        <p class="text-muted small">Include yourself in the count.</p>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Notes (optional)</label>
+        <textarea name="txt_notes" class="form-control" rows="2"
+          placeholder="e.g. 2 adults + 1 child, we prefer slow pace"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Book now</button>
+    </form>
+    <div class="alert alert-info mt-3 mb-0">
+      <strong>Need a larger group or a private tour?</strong><br>
+      If you need more spots than available, or a different date, contact us at
+      <a href="mailto:contact@silkstep.com">contact@silkstep.com</a>.
+    </div>
+  {% elif session.get('user_role') == 'guide' %}
+    <div class="alert alert-info mt-3 mb-0">Guides cannot book tours.</div>
+  {% elif session.get('user_role') == 'admin' %}
+    <div class="alert alert-secondary mt-3 mb-0">Admin view only.</div>
+  {% else %}
+    <div class="alert alert-warning mt-3 mb-0">
+      Please <a href="{{ url_for('login') }}">login</a> as a participant to book.
+    </div>
+  {% endif %}
+
+  <a href="{{ url_for('tours') }}" class="btn btn-link mt-3 ps-0">← Back to tours</a>
+</section>
+{% if session.get('user_role') == 'participant' %}
+<script>
+  const tourId = {{ tour.id }};
+  const dateInput = document.getElementById("tour_date");
+  const spotsInfo = document.getElementById("spots_info");
+  const partyInput = document.getElementById("party_size");
+
+  async function updateSpots() {
+    const date = dateInput.value;
+    if (!date) {
+      spotsInfo.textContent = "Pick a date to see spots left.";
+      return;
+    }
+
+    const res = await fetch(`/tour/${tourId}/availability?date=${date}`);
+    const data = await res.json();
+
+    if (data.remaining === 0) {
+      spotsInfo.innerHTML =
+        '<span class="text-danger">Fully booked on this date. ' +
+        'For a private tour contact <a href="mailto:contact@silkstep.com">contact@silkstep.com</a>.</span>';
+      partyInput.max = 0;
+      partyInput.value = 0;
+      document.querySelector('button[type="submit"]').disabled = true;
+    } else {
+      spotsInfo.innerHTML =
+        '<strong>' + data.remaining + '</strong> spot(s) left on this date (max ' + data.max + ').';
+      partyInput.max = data.remaining;
+      partyInput.value = 1;
+      document.querySelector('button[type="submit"]').disabled = false;
+    }
+  }
+
+  dateInput.addEventListener("change", updateSpots);
+</script>
+{% endif %}
+{% endblock %}
