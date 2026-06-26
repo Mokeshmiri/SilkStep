@@ -5,6 +5,10 @@
 <section class="container py-5">
   <h1 class="mb-4">Popular tours in Tehran</h1>
 
+  {% if page_error %}
+    <div class="alert alert-warning">{{ page_error }}</div>
+  {% endif %}
+
   <form method="GET" action="{{ url_for('tours') }}" class="mb-4 d-flex gap-2">
     <select name="language" class="form-select" style="max-width: 220px;">
       <option value="">All languages</option>
@@ -37,17 +41,18 @@
           <p>{{ tour.summary }}</p>
           <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">View tour</a>
 
-          {% if session.get('user_role') == 'admin' or (session.get('user_role') == 'guide' and tour.guide_id == session.get('user_id')) %}
-            {% if tour.booking_count == 0 %}
-              <a href="{{ url_for('edit_tour', tour_id=tour.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
-              <form method="POST" action="{{ url_for('delete_tour_route', tour_id=tour.id) }}" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger btn-sm"
-                        onclick="return confirm('Delete this tour?');">
-                  Delete
-                </button>
-              </form>
-            {% else %}
-              <span class="text-muted small">has bookings (locked)</span>
+          {% if current_user.is_authenticated and (current_user.role == 'admin' or (current_user.role == 'guide' and tour.guide_id == current_user.id)) %}
+            <a href="{{ url_for('edit_tour', tour_id=tour.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            <form method="POST" action="{{ url_for('delete_tour_route', tour_id=tour.id) }}" class="d-inline">
+              <button type="submit" class="btn btn-outline-danger btn-sm"
+                      onclick="return confirm('Delete this tour?');">
+                Delete
+              </button>
+            </form>
+            {% if tour.booking_count > 0 and current_user.role == 'guide' %}
+              <span class="text-muted small d-block mt-1">has bookings (locked for guides)</span>
+            {% elif tour.booking_count > 0 and current_user.role == 'admin' %}
+              <span class="text-muted small d-block mt-1">{{ tour.booking_count }} booking(s) — admin can still edit</span>
             {% endif %}
           {% endif %}
         </div>

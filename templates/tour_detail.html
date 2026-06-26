@@ -15,24 +15,34 @@
   <p><strong>Max participants:</strong> {{ tour.max_participants or "Not set" }}</p>
 
   {% if photos %}
-    <h2 class="h6">Tour photos</h2>
+    <h2 class="h6">Tour photos <span class="text-muted small">(click to enlarge)</span></h2>
     <div class="row g-2 mb-3">
       {% for p in photos %}
-      <div class="col-md-4">
-        <img src="{{ url_for('static', filename=p.photo_path) }}" class="img-fluid rounded" alt="{{ tour.title }}">
+      <div class="col-6 col-md-4">
+        <img src="{{ url_for('static', filename=p.photo_path) }}"
+             class="img-fluid rounded photo-thumb"
+             alt="{{ tour.title }}"
+             data-bs-toggle="modal"
+             data-bs-target="#photoModal"
+             data-full-src="{{ url_for('static', filename=p.photo_path) }}">
       </div>
       {% endfor %}
     </div>
   {% elif tour.photo_src %}
     <div class="mb-3">
-      <img src="{{ tour.photo_src }}" alt="{{ tour.title }}" class="img-fluid rounded">
+      <img src="{{ tour.photo_src }}"
+           alt="{{ tour.title }}"
+           class="img-fluid rounded photo-thumb"
+           data-bs-toggle="modal"
+           data-bs-target="#photoModal"
+           data-full-src="{{ tour.photo_src }}">
     </div>
   {% else %}
     <p class="text-muted small">no photos for this tour yet</p>
   {% endif %}
   <p>{{ tour.summary }}</p>
 
-  {% if session.get('user_role') == 'participant' %}
+  {% if current_user.role == 'participant' %}
     <hr>
     <h2 class="h5 mb-3">Book this tour</h2>
     {% if booking_error %}
@@ -63,9 +73,9 @@
       If you need more spots than available, or a different date, contact us at
       <a href="mailto:contact@silkstep.com">contact@silkstep.com</a>.
     </div>
-  {% elif session.get('user_role') == 'guide' %}
+  {% elif current_user.role == 'guide' %}
     <div class="alert alert-info mt-3 mb-0">Guides cannot book tours.</div>
-  {% elif session.get('user_role') == 'admin' %}
+  {% elif current_user.role == 'admin' %}
     <div class="alert alert-secondary mt-3 mb-0">Admin view only.</div>
   {% else %}
     <div class="alert alert-warning mt-3 mb-0">
@@ -75,7 +85,79 @@
 
   <a href="{{ url_for('tours') }}" class="btn btn-link mt-3 ps-0">← Back to tours</a>
 </section>
-{% if session.get('user_role') == 'participant' %}
+<div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content bg-transparent border-0 position-relative">
+      <button type="button" class="btn btn-light photo-nav-btn photo-nav-prev" id="photoPrev" aria-label="Previous photo">&#8249;</button>
+      <button type="button" class="btn btn-light photo-nav-btn photo-nav-next" id="photoNext" aria-label="Next photo">&#8250;</button>
+      <div class="modal-body text-center p-0">
+        <div class="photo-frame d-inline-block">
+          <img id="photoModalImage" src="" alt="Tour photo" class="img-fluid" style="max-height: 85vh; width: auto;">
+        </div>
+        <p id="photoCounter" class="text-white small mt-2 mb-0"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const photoModal = document.getElementById("photoModal");
+  const photoModalImage = document.getElementById("photoModalImage");
+  const photoPrev = document.getElementById("photoPrev");
+  const photoNext = document.getElementById("photoNext");
+  const photoCounter = document.getElementById("photoCounter");
+  const photoThumbs = Array.from(document.querySelectorAll(".photo-thumb"));
+  const photoUrls = photoThumbs.map(function (img) {
+    return img.getAttribute("data-full-src");
+  });
+  let currentPhotoIndex = 0;
+
+  function showPhotoAt(index) {
+    if (!photoUrls.length) {
+      return;
+    }
+    currentPhotoIndex = (index + photoUrls.length) % photoUrls.length;
+    photoModalImage.src = photoUrls[currentPhotoIndex];
+    if (photoUrls.length > 1) {
+      photoCounter.textContent = (currentPhotoIndex + 1) + " / " + photoUrls.length;
+      photoPrev.style.display = "";
+      photoNext.style.display = "";
+    } else {
+      photoCounter.textContent = "";
+      photoPrev.style.display = "none";
+      photoNext.style.display = "none";
+    }
+  }
+
+  if (photoModal) {
+    photoModal.addEventListener("show.bs.modal", function (event) {
+      const thumb = event.relatedTarget;
+      const clickedSrc = thumb.getAttribute("data-full-src");
+      const startIndex = photoUrls.indexOf(clickedSrc);
+      showPhotoAt(startIndex >= 0 ? startIndex : 0);
+    });
+
+    photoPrev.addEventListener("click", function () {
+      showPhotoAt(currentPhotoIndex - 1);
+    });
+
+    photoNext.addEventListener("click", function () {
+      showPhotoAt(currentPhotoIndex + 1);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (!photoModal.classList.contains("show")) {
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        showPhotoAt(currentPhotoIndex - 1);
+      } else if (event.key === "ArrowRight") {
+        showPhotoAt(currentPhotoIndex + 1);
+      }
+    });
+  }
+</script>
+{% if current_user.is_authenticated and current_user.role == 'participant' %}
 <script>
   const tourId = {{ tour.id }};
   const dateInput = document.getElementById("tour_date");

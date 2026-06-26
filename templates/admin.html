@@ -4,12 +4,130 @@
 {% block content %}
 <section class="container py-5">
   <h1 class="mb-4">Admin dashboard</h1>
-  <ul class="list-group">
-    <li class="list-group-item">Total tours: {{ stats.tours_count }}</li>
-    <li class="list-group-item">Total users: {{ stats.users_count }}</li>
-    <li class="list-group-item">Guides: {{ stats.guides_count }}</li>
-    <li class="list-group-item">Participants: {{ stats.participants_count }}</li>
-    <li class="list-group-item">Bookings: {{ stats.bookings_count }}</li>
-  </ul>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-2 col-6">
+      <div class="card text-center">
+        <div class="card-body py-3">
+          <div class="h4 mb-0">{{ stats.tours_count }}</div>
+          <div class="small text-muted">Tours</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="card text-center">
+        <div class="card-body py-3">
+          <div class="h4 mb-0">{{ stats.guides_count }}</div>
+          <div class="small text-muted">Guides</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="card text-center">
+        <div class="card-body py-3">
+          <div class="h4 mb-0">{{ stats.participants_count }}</div>
+          <div class="small text-muted">Participants</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="card text-center">
+        <div class="card-body py-3">
+          <div class="h4 mb-0">{{ stats.bookings_count }}</div>
+          <div class="small text-muted">Bookings</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 col-6">
+      <div class="card text-center">
+        <div class="card-body py-3">
+          <div class="h4 mb-0">{{ stats.users_count }}</div>
+          <div class="small text-muted">All users</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="h5 mb-3">Guides</h2>
+  <div class="table-responsive mb-4">
+    <table class="table table-striped table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in guides %}
+        <tr>
+          <td>{{ g.id }}</td>
+          <td>{{ g.name }} {{ g.surname }}</td>
+          <td>{{ g.email }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="text-muted">No guides found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="h5 mb-3">Participants</h2>
+  <div class="table-responsive mb-4">
+    <table class="table table-striped table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in participants %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td>{{ p.name }} {{ p.surname }}</td>
+          <td>{{ p.email }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="text-muted">No participants found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="h5 mb-3">All bookings</h2>
+  <div class="table-responsive">
+    <table class="table table-striped table-sm align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tour</th>
+          <th>Guide</th>
+          <th>Participant</th>
+          <th>Date</th>
+          <th>People</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr>
+          <td>{{ b.id }}</td>
+          <td>{{ b.tour_title }}</td>
+          <td>{{ b.guide_name }} {{ b.guide_surname }}</td>
+          <td>{{ b.participant_name }} {{ b.participant_surname }}<br><span class="text-muted small">{{ b.participant_email }}</span></td>
+          <td>{{ b.tour_date }}</td>
+          <td>{{ b.party_size }}</td>
+          <td>{{ b.status }}</td>
+          <td>{{ b.notes or "—" }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="8" class="text-muted">No bookings yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </section>
 {% endblock %}
