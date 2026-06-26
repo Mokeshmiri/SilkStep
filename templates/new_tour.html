@@ -5,28 +5,34 @@
 <section class="container py-5" style="max-width: 600px;">
   <h1 class="mb-4">Create a new tour</h1>
 
+  {% if form_error %}
+    <div class="alert alert-danger">{{ form_error }}</div>
+  {% endif %}
+
   <form method="POST" action="{{ url_for('new_tour') }}" enctype="multipart/form-data">
     <div class="mb-3">
       <label class="form-label">Title</label>
-      <input type="text" name="txt_title" class="form-control" required>
+      <input type="text" name="txt_title" class="form-control" value="{{ form.title or '' }}" required>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Schedule</label>
-      <input type="text" name="txt_schedule" class="form-control" placeholder="Sat & Sun at 10:00 AM" required>
+      <input type="text" name="txt_schedule" class="form-control" placeholder="Sat & Sun at 10:00 AM"
+             value="{{ form.schedule or '' }}" required>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Duration</label>
-      <input type="text" name="txt_duration" class="form-control" placeholder="3 hours" required>
+      <input type="text" name="txt_duration" class="form-control" placeholder="3 hours"
+             value="{{ form.duration or '' }}" required>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Payment type</label>
       <select name="txt_payment" class="form-select" required>
-        <option value="Free Tour">Free Tour</option>
-        <option value="Paid Tour">Paid Tour</option>
-        <option value="Exclusive Tour">Exclusive Tour</option>
+        <option value="Free Tour" {% if (form.payment or 'Free Tour') == 'Free Tour' %}selected{% endif %}>Free Tour</option>
+        <option value="Paid Tour" {% if form.payment == 'Paid Tour' %}selected{% endif %}>Paid Tour</option>
+        <option value="Exclusive Tour" {% if form.payment == 'Exclusive Tour' %}selected{% endif %}>Exclusive Tour</option>
       </select>
     </div>
 
@@ -37,7 +43,8 @@
       {% for lang in available_languages %}
       <div class="form-check">
         <input class="form-check-input" type="checkbox"
-               name="txt_languages" value="{{ lang }}" id="lang_{{ loop.index }}">
+               name="txt_languages" value="{{ lang }}" id="lang_{{ loop.index }}"
+               {% if lang in (form.languages_list or []) %}checked{% endif %}>
         <label class="form-check-label" for="lang_{{ loop.index }}">{{ lang }}</label>
       </div>
       {% endfor %}
@@ -45,19 +52,21 @@
 
     <div class="mb-3">
       <label class="form-label">Summary</label>
-      <textarea name="txt_summary" class="form-control" rows="4" required></textarea>
+      <textarea name="txt_summary" class="form-control" rows="4" required>{{ form.summary or '' }}</textarea>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Meeting point</label>
       <input type="text" name="txt_meeting_point" class="form-control"
-             placeholder="e.g. Golestan Palace main gate" required>
+             placeholder="e.g. Golestan Palace main gate"
+             value="{{ form.meeting_point or '' }}" required>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Meeting point map link</label>
       <input type="url" name="txt_meeting_map_link" class="form-control"
-             placeholder="https://maps.google.com/...">
+             placeholder="https://maps.google.com/..."
+             value="{{ form.meeting_map_link or '' }}">
       <p class="text-muted small mb-0">optional: paste google maps link for this meeting point</p>
     </div>
 
@@ -65,7 +74,7 @@
       <label class="form-label">Max participants</label>
       <p class="text-muted small">max number of people who can join this tour</p>
       <input type="number" name="txt_max_participants" class="form-control"
-             min="1" max="100" value="15" required>
+             min="1" max="100" value="{{ form.max_participants or 15 }}" required>
     </div>
 
     <div class="mb-3">

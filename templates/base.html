@@ -11,28 +11,44 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('home') }}">SilkStep</a>
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
-        <a class="nav-link" href="{{ url_for('tours') }}">Tours</a>
-      
-        {% if session.get('user_email') %}
-        <span class="nav-link text-light">{{ session.get('user_name') }}</span>
-      
-        {% if session.get('user_role') == 'guide' %}
-          <a class="nav-link" href="{{ url_for('new_tour') }}">New tour</a>
-          <a class="nav-link" href="{{ url_for('guide_bookings') }}">TourBookings</a>
-        {% endif %}
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-        {% if session.get('user_role') == 'admin' %}
-        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin dashboard</a>
-        {% endif %}
-        {% if session.get('user_role') == 'participant' %}
-          <a class="nav-link" href="{{ url_for('my_bookings') }}">My bookings</a>
-        {% endif %}
-        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-      {% else %}
-        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-      {% endif %}
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('tours') }}">Tours</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('contact') }}">Contact us</a>
+          </li>
+
+          {% if current_user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button"
+               data-bs-toggle="dropdown" aria-expanded="false">
+              {{ current_user.name }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+              {% if current_user.role == 'guide' %}
+              <li><a class="dropdown-item" href="{{ url_for('new_tour') }}">Create tour</a></li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+          </li>
+          {% endif %}
+        </ul>
       </div>
     </div>
   </nav>

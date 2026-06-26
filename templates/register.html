@@ -4,6 +4,11 @@
 {% block content %}
 <section class="container py-5" style="max-width: 520px;">
   <h1 class="mb-4">Create account</h1>
+
+  {% if form_error %}
+    <div class="alert alert-danger">{{ form_error }}</div>
+  {% endif %}
+
   <form method="POST" action="{{ url_for('register') }}">
     <div class="mb-3">
       <label class="form-label">First name</label>
@@ -20,13 +25,6 @@
     <div class="mb-3">
       <label class="form-label">Password</label>
       <input type="password" name="txt_password" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Register as</label>
-      <select name="txt_role" class="form-select" required>
-        <option value="participant">Participant</option>
-        <option value="guide">Guide</option>
-      </select>
     </div>
     <button type="submit" class="btn btn-primary">Register</button>
   </form>

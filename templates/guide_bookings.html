@@ -4,6 +4,7 @@
 {% block content %}
 <section class="container py-5">
   <h1 class="mb-4">Bookings for my tours</h1>
+  <a href="{{ url_for('new_tour') }}" class="btn btn-primary btn-sm mb-3">Create new tour</a>
 
   {% if bookings %}
     <div class="list-group">

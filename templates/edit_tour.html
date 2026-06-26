@@ -5,6 +5,10 @@
 <section class="container py-5" style="max-width: 600px;">
   <h1 class="mb-4">Edit tour</h1>
 
+  {% if form_error %}
+    <div class="alert alert-danger">{{ form_error }}</div>
+  {% endif %}
+
   {% if photos %}
   <div class="mb-4">
     <label class="form-label">Current photos ({{ photos|length }}/{{ max_photos }})</label>
