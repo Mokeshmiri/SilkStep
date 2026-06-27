@@ -1,31 +1,40 @@
 {% extends "base.html" %}
 {% block title %}SilkStep | Free Walking Tours in Tehran{% endblock %}
 {% block content %}
+  {# hero banner #}
   <header class="hero text-center text-white">
     <div class="container py-5">
-      <h1 class="display-4 fw-bold">SilkStep</h1>
+      <h1 class="display-3 fw-bold">Silk Step</h1>
       <p class="lead mb-3">Every step tells a story.</p>
       <p class="hero-sub mb-4">Free walking tours in Tehran, inspired by Silk Road history.</p>
       <a href="{{ url_for('tours') }}" class="btn btn-light btn-lg">Browse tours</a>
     </div>
   </header>
 
+  {# three selling points — short titles, not long paragraphs #}
   <section class="container py-4">
     <div class="row g-3 text-center">
       <div class="col-md-4">
-        <div class="trust-box">Free to join</div>
+        <div class="trust-box">
+          <h2 class="trust-title h4 mb-0">Free to join</h2>
+        </div>
       </div>
       <div class="col-md-4">
-        <div class="trust-box">Local guides</div>
+        <div class="trust-box">
+          <h2 class="trust-title h4 mb-0">Local guides</h2>
+        </div>
       </div>
       <div class="col-md-4">
-        <div class="trust-box">Tehran heritage routes</div>
+        <div class="trust-box">
+          <h2 class="trust-title h4 mb-0">Tehran heritage routes</h2>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="tours" class="container py-5">
     <h2 class="mb-4">Popular tours in Tehran</h2>
+    {# tour cards from db #}
     <div class="row g-4">
 
       {% for tour in tours %}

@@ -7,6 +7,7 @@
   <a href="{{ url_for('new_tour') }}" class="btn btn-primary btn-sm mb-3">Create new tour</a>
 
   {% if bookings %}
+    {# bookings on tours this guide owns #}
     <div class="list-group">
       {% for b in bookings %}
         <div class="list-group-item">
@@ -20,6 +21,14 @@
           <p class="mb-1">People: {{ b.party_size }}</p>
           {% if b.notes %}
             <p class="mb-1 text-muted small">Notes: {{ b.notes }}</p>
+          {% endif %}
+          {% if b.announce_email or b.announce_phone %}
+            <p class="mb-1 text-muted small">
+              Contact for updates:
+              {% if b.announce_email %}{{ b.announce_email }}{% endif %}
+              {% if b.announce_email and b.announce_phone %} · {% endif %}
+              {% if b.announce_phone %}{{ b.announce_phone }}{% endif %}
+            </p>
           {% endif %}
           <span class="badge bg-success">{{ b.status }}</span>
         </div>

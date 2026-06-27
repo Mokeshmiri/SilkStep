@@ -6,6 +6,7 @@
   <h1 class="mb-4">My bookings</h1>
 
   {% if bookings %}
+    {# list with cancel button per booking #}
     <div class="list-group">
       {% for b in bookings %}
         <div class="list-group-item">
@@ -23,6 +24,14 @@
               {% endif %}
               {% if b.notes %}
                 <p class="mb-1 text-muted small">notes: {{ b.notes }}</p>
+              {% endif %}
+              {% if b.announce_email or b.announce_phone %}
+                <p class="mb-1 text-muted small">
+                  announcements:
+                  {% if b.announce_email %}{{ b.announce_email }}{% endif %}
+                  {% if b.announce_email and b.announce_phone %} · {% endif %}
+                  {% if b.announce_phone %}{{ b.announce_phone }}{% endif %}
+                </p>
               {% endif %}
               <span class="badge bg-success">{{ b.status }}</span>
             </div>

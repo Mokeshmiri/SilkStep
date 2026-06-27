@@ -9,6 +9,7 @@ import bookings_dao
 import tour_photos_dao
 import tours_dao
 import users_dao
+import tour_stops_dao
 from user_model import User
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
+    # reload user from db when flask-login reads the session cookie
     row = users_dao.get_user_by_id(int(user_id))
     return User(row) if row else None
 
@@ -33,10 +35,12 @@ ALLOWED_PHOTO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 # --- photo helpers ---
 
 def allowed_photo(filename):
+    # block weird file types on upload
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_PHOTO_EXTENSIONS
 
 
 def save_tour_photo(file, tour_id):
+    # save one image to static/uploads, return path like uploads/tour_3_abc.jpg
     if not file or not file.filename or not allowed_photo(file.filename):
         return ""
     ext = file.filename.rsplit(".", 1)[1].lower()
@@ -49,6 +53,7 @@ def save_tour_photo(file, tour_id):
 
 
 def remove_photo_file(photo_path):
+    # delete file from disk when removing a gallery photo
     if not photo_path or photo_path.startswith("http"):
         return
     file_path = os.path.join(app.root_path, "static", photo_path)
@@ -57,6 +62,7 @@ def remove_photo_file(photo_path):
 
 
 def save_uploaded_photos(tour_id, files):
+    # loop file input — stops at 5 photos per tour
     for file in files:
         if tour_photos_dao.count_photos_for_tour(tour_id) >= tour_photos_dao.MAX_PHOTOS_PER_TOUR:
             break
@@ -80,6 +86,7 @@ def sync_tour_cover_photo(tour_id):
 
 
 def tour_photo_src(photo_url):
+    # turn db path into full url for img src
     if not photo_url:
         return ""
     if photo_url.startswith("http"):
@@ -88,6 +95,7 @@ def tour_photo_src(photo_url):
 
 
 def tour_dict(row):
+    # add photo_src for tour cards on home/tours pages
     data = dict(row)
     photos = tour_photos_dao.get_photos_for_tour(data["id"])
     if photos:
@@ -98,6 +106,7 @@ def tour_dict(row):
 
 
 def can_manage_tour(tour_id):
+    # guide owns tour, or admin — used before edit/delete
     tour = tours_dao.get_tour_by_id(tour_id)
     if not tour or not current_user.is_authenticated:
         return None
@@ -109,6 +118,7 @@ def can_manage_tour(tour_id):
 
 
 def parse_max_participants(raw_value, default=15):
+    # safe int from form — party size and max participants
     try:
         return max(1, int(raw_value))
     except (TypeError, ValueError):
@@ -116,6 +126,7 @@ def parse_max_participants(raw_value, default=15):
 
 
 def edit_tour_context(tour_id, tour_row, use_form=False):
+    # bundle tour + photos + languages for edit_tour.html (also on validation error)
     tour_data = dict(tour_row)
     if use_form:
         tour_data.update({
@@ -128,18 +139,26 @@ def edit_tour_context(tour_id, tour_row, use_form=False):
             "meeting_map_link": request.form.get("txt_meeting_map_link", tour_data.get("meeting_map_link", "")),
             "max_participants": parse_max_participants(request.form.get("txt_max_participants"), tour_data.get("max_participants") or 15),
             "languages_list": request.form.getlist("txt_languages"),
+            "stops_list": parse_stops_from_form(),
         })
     else:
         tour_data["languages_list"] = tours_dao.get_languages_for_tour(tour_id)
+        tour_data["stops_list"] = [
+            {"name": s["name"], "description": s["description"]}
+            for s in tour_stops_dao.get_stops_for_tour(tour_id)
+        ]
     return {
         "tour": tour_data,
         "photos": [dict(p) for p in tour_photos_dao.get_photos_for_tour(tour_id)],
         "max_photos": tour_photos_dao.MAX_PHOTOS_PER_TOUR,
         "available_languages": AVAILABLE_LANGUAGES,
+        "min_stops": tour_stops_dao.MIN_STOPS_PER_TOUR,
+        "max_stops": tour_stops_dao.MAX_STOPS_PER_TOUR,
     }
 
 
 def new_tour_form_data():
+    # keep form values when validation fails on create tour
     return {
         "title": request.form.get("txt_title", ""),
         "schedule": request.form.get("txt_schedule", ""),
@@ -150,23 +169,36 @@ def new_tour_form_data():
         "meeting_map_link": request.form.get("txt_meeting_map_link", ""),
         "max_participants": parse_max_participants(request.form.get("txt_max_participants")),
         "languages_list": request.form.getlist("txt_languages"),
+        "stops": parse_stops_from_form(),
     }
 
 
 def filter_languages(selected):
+    # only allow languages from our fixed list
     return [lang for lang in selected if lang in AVAILABLE_LANGUAGES]
 
+def parse_stops_from_form():
+    # form sends txt_stop_name_1, txt_stop_desc_1, ... guides can add more via js
+    stops = []
+    for i in range(1, tour_stops_dao.MAX_STOPS_PER_TOUR + 1):
+        name = request.form.get(f"txt_stop_name_{i}", "").strip()
+        if name:
+            description = request.form.get(f"txt_stop_desc_{i}", "").strip()
+            stops.append({"name": name, "description": description})
+    return stops
 
 # --- public pages ---
 
 @app.route("/")
 def home():
+    # landing page with featured tour cards
     tours = [tour_dict(row) for row in tours_dao.get_tours()]
     return render_template("home.html", tours=tours)
 
 
 @app.route("/tours")
 def tours():
+    # full tour list with optional language filter
     selected_language = request.args.get("language", "")
     if selected_language and selected_language not in AVAILABLE_LANGUAGES:
         selected_language = ""
@@ -185,6 +217,7 @@ def tours():
 
 @app.route("/tour/<int:tour_id>")
 def tour_detail(tour_id):
+    # single tour page — photos, details, booking form
     tour = tours_dao.get_tour_by_id(tour_id)
     if not tour:
         return "Tour not found", 404
@@ -192,17 +225,20 @@ def tour_detail(tour_id):
     langs = tours_dao.get_languages_for_tour(tour_id)
     tour_data["languages"] = ", ".join(langs) if langs else "Not set"
     photos = [dict(p) for p in tour_photos_dao.get_photos_for_tour(tour_id)]
+    stops = [dict(s) for s in tour_stops_dao.get_stops_for_tour(tour_id)]
     tour_data["photo_src"] = tour_photo_src(photos[0]["photo_path"] if photos else tour_data.get("photo_url"))
     return render_template(
         "tour_detail.html",
         tour=tour_data,
         photos=photos,
+        stops=stops,
         booking_error=request.args.get("booking_error", ""),
     )
 
 
 @app.route("/contact")
 def contact():
+    # static contact info page
     return render_template("contact.html")
 
 
@@ -210,11 +246,13 @@ def contact():
 
 @app.route("/signup")
 def signup():
+    # show register form
     return render_template("register.html")
 
 
 @app.route("/register", methods=["POST"])
 def register():
+    # new accounts are always participants (exam rule)
     email = request.form.get("txt_email")
     if users_dao.get_user_by_email(email):
         return render_template("register.html", form_error="Email already registered. Try logging in instead.")
@@ -230,11 +268,13 @@ def register():
 
 @app.route("/login")
 def login():
+    # show login form
     return render_template("login.html")
 
 
 @app.route("/do_login", methods=["POST"])
 def do_login():
+    # check email/password then start flask-login session
     user = users_dao.get_user_by_email(request.form.get("txt_email"))
     if not user or user["password"] != request.form.get("txt_password"):
         return render_template("login.html", error="Invalid email or password")
@@ -244,19 +284,95 @@ def do_login():
 
 @app.route("/logout")
 def logout():
+    # end session
     logout_user()
     return redirect(url_for("home"))
 
 
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    # preview only — no real email sent; checks email exists in db
+    if request.method == "POST":
+        email = request.form.get("txt_email", "").strip()
+        if not email:
+            return render_template("forgot_password.html", error="Please enter your email.", email=email)
+        user = users_dao.get_user_by_email(email)
+        if not user:
+            return render_template(
+                "forgot_password.html",
+                error="No account found with that email.",
+                email=email,
+            )
+        return render_template("forgot_password.html", success=True, email=email)
+    return render_template("forgot_password.html")
+
+@app.route("/profile/password", methods=["GET", "POST"])
+def change_password():
+    if not current_user.is_authenticated:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        current = request.form.get("txt_current_password", "")
+        new_pass = request.form.get("txt_new_password", "")
+        confirm = request.form.get("txt_confirm_password", "")
+
+        if current != current_user.password:
+            return render_template(
+                "change_password.html",
+                form_error="Current password is wrong.",
+            )
+
+        if not new_pass:
+            return render_template(
+                "change_password.html",
+                form_error="New password is required.",
+            )
+
+        if new_pass != confirm:
+            return render_template(
+                "change_password.html",
+                form_error="New passwords do not match.",
+            )
+
+        users_dao.update_password(current_user.id, new_pass)
+        return redirect(url_for("profile"))
+
+    return render_template("change_password.html")
+
+
+
 @app.route("/profile")
 def profile():
+    # logged-in user info
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
     return render_template("profile.html", user=current_user)
 
+@app.route("/profile/edit", methods=["GET", "POST"])
+def edit_profile():
+    if not current_user.is_authenticated:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        name = request.form.get("txt_name", "").strip()
+        surname = request.form.get("txt_surname", "").strip()
+
+        if not name or not surname:
+            return render_template(
+                "edit_profile.html",
+                user=current_user,
+                form_error="Name and surname are required.",
+            )
+
+        users_dao.update_profile(current_user.id, name, surname)
+        return redirect(url_for("profile"))
+
+    return render_template("edit_profile.html", user=current_user)
+
 
 @app.route("/dashboard")
 def dashboard():
+    # send each role to the right page
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
     if current_user.role == "participant":
@@ -272,6 +388,7 @@ def dashboard():
 
 @app.route("/guide/new-tour", methods=["GET", "POST"])
 def new_tour():
+    # guide creates a tour with photos and languages
     if not current_user.is_authenticated or current_user.role != "guide":
         return redirect(url_for("home"))
     if request.method == "POST":
@@ -282,6 +399,18 @@ def new_tour():
                 available_languages=AVAILABLE_LANGUAGES,
                 form_error="Select at least one language.",
                 form=new_tour_form_data(),
+                min_stops=tour_stops_dao.MIN_STOPS_PER_TOUR,
+                max_stops=tour_stops_dao.MAX_STOPS_PER_TOUR,
+            )
+        stops = parse_stops_from_form()
+        if len(stops) < tour_stops_dao.MIN_STOPS_PER_TOUR:
+            return render_template(
+                "new_tour.html",
+                available_languages=AVAILABLE_LANGUAGES,
+                form_error=f"Add at least {tour_stops_dao.MIN_STOPS_PER_TOUR} tour stops.",
+                form=new_tour_form_data(),
+                min_stops=tour_stops_dao.MIN_STOPS_PER_TOUR,
+                max_stops=tour_stops_dao.MAX_STOPS_PER_TOUR,
             )
         max_participants = parse_max_participants(request.form.get("txt_max_participants"))
         tour_id = tours_dao.create_tour(
@@ -299,12 +428,20 @@ def new_tour():
         save_uploaded_photos(tour_id, request.files.getlist("txt_photos"))
         sync_tour_cover_photo(tour_id)
         tours_dao.set_tour_languages(tour_id, selected_languages)
+        tour_stops_dao.set_tour_stops(tour_id, stops)
         return redirect(url_for("tours"))
-    return render_template("new_tour.html", available_languages=AVAILABLE_LANGUAGES, form={})
+    return render_template(
+        "new_tour.html",
+        available_languages=AVAILABLE_LANGUAGES,
+        form={},
+        min_stops=tour_stops_dao.MIN_STOPS_PER_TOUR,
+        max_stops=tour_stops_dao.MAX_STOPS_PER_TOUR,
+    )
 
 
 @app.route("/guide/edit-tour/<int:tour_id>", methods=["GET", "POST"])
 def edit_tour(tour_id):
+    # update tour — locked for guides once someone booked
     tour = can_manage_tour(tour_id)
     if not tour:
         return redirect(url_for("tours"))
@@ -316,6 +453,11 @@ def edit_tour(tour_id):
         if not selected_languages:
             ctx = edit_tour_context(tour_id, tour, use_form=True)
             ctx["form_error"] = "Select at least one language."
+            return render_template("edit_tour.html", **ctx)
+        stops = parse_stops_from_form()
+        if len(stops) < tour_stops_dao.MIN_STOPS_PER_TOUR:
+            ctx = edit_tour_context(tour_id, tour, use_form=True)
+            ctx["form_error"] = f"Add at least {tour_stops_dao.MIN_STOPS_PER_TOUR} tour stops."
             return render_template("edit_tour.html", **ctx)
         max_participants = parse_max_participants(request.form.get("txt_max_participants"))
         tours_dao.update_tour(
@@ -333,6 +475,7 @@ def edit_tour(tour_id):
         save_uploaded_photos(tour_id, request.files.getlist("txt_photos"))
         sync_tour_cover_photo(tour_id)
         tours_dao.set_tour_languages(tour_id, selected_languages)
+        tour_stops_dao.set_tour_stops(tour_id, stops)
         return redirect(url_for("tours"))
     ctx = edit_tour_context(tour_id, tour, use_form=False)
     ctx["form_error"] = request.args.get("error", "")
@@ -341,6 +484,7 @@ def edit_tour(tour_id):
 
 @app.route("/guide/delete-tour/<int:tour_id>", methods=["POST"])
 def delete_tour_route(tour_id):
+    # remove tour, photos on disk, and related db rows
     tour = can_manage_tour(tour_id)
     if not tour:
         return redirect(url_for("tours"))
@@ -355,6 +499,7 @@ def delete_tour_route(tour_id):
 
 @app.route("/guide/tour-photo/<int:photo_id>/delete", methods=["POST"])
 def delete_tour_photo(photo_id):
+    # delete one gallery image from edit page
     if not current_user.is_authenticated or current_user.role not in ("guide", "admin"):
         return redirect(url_for("home"))
     photo = tour_photos_dao.get_photo_by_id(photo_id)
@@ -373,6 +518,7 @@ def delete_tour_photo(photo_id):
 
 @app.route("/guide/bookings")
 def guide_bookings():
+    # guide sees who booked their tours
     if not current_user.is_authenticated or current_user.role != "guide":
         return redirect(url_for("home"))
     bookings = [dict(r) for r in bookings_dao.get_bookings_by_guide(current_user.id)]
@@ -383,6 +529,7 @@ def guide_bookings():
 
 @app.route("/tour/<int:tour_id>/book", methods=["POST"])
 def book_tour(tour_id):
+    # participant books a date — checks capacity first
     if not current_user.is_authenticated or current_user.role != "participant":
         return redirect(url_for("tour_detail", tour_id=tour_id))
     tour_date = request.form.get("txt_tour_date")
@@ -396,14 +543,24 @@ def book_tour(tour_id):
     remaining = max_participants - bookings_dao.get_booked_spots(tour_id, tour_date)
     if party_size > remaining:
         return redirect(url_for("tour_detail", tour_id=tour_id, booking_error=f"Only {remaining} spot(s) left on that date."))
+    announce_email = request.form.get("txt_announce_email", "").strip()
+    announce_phone = request.form.get("txt_announce_phone", "").strip()
+    if not announce_email and not announce_phone:
+        return redirect(url_for(
+            "tour_detail", tour_id=tour_id,
+            booking_error="Please add an email or phone number for tour announcements.",
+        ))
     bookings_dao.create_booking(
-        tour_id, current_user.id, tour_date, party_size, request.form.get("txt_notes", "").strip(),
+        tour_id, current_user.id, tour_date, party_size,
+        request.form.get("txt_notes", "").strip(),
+        announce_email, announce_phone,
     )
     return redirect(url_for("my_bookings"))
 
 
 @app.route("/my-bookings")
 def my_bookings():
+    # participant's own booking list
     if not current_user.is_authenticated or current_user.role != "participant":
         return redirect(url_for("home"))
     bookings = [dict(r) for r in bookings_dao.get_bookings_by_participant(current_user.id)]
@@ -412,6 +569,7 @@ def my_bookings():
 
 @app.route("/booking/<int:booking_id>/cancel", methods=["POST"])
 def cancel_booking(booking_id):
+    # participant cancels their own booking
     if not current_user.is_authenticated or current_user.role != "participant":
         return redirect(url_for("home"))
     bookings_dao.cancel_booking(booking_id, current_user.id)
@@ -436,6 +594,7 @@ def tour_availability(tour_id):
 
 @app.route("/admin")
 def admin_dashboard():
+    # stats + tables for guides, participants, bookings
     if not current_user.is_authenticated or current_user.role != "admin":
         return redirect(url_for("home"))
     return render_template(

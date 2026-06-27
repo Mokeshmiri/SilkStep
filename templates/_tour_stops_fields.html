@@ -1,0 +1,90 @@
+{# shared stop fields — include with stops_list, min_stops, max_stops #}
+{% set min_stops = min_stops|default(4) %}
+{% set max_stops = max_stops|default(15) %}
+{% set existing = stops_list|default([]) %}
+{% set initial_count = [existing|length, min_stops]|max %}
+
+<div class="mb-3" id="tour-stops-section">
+  <label class="form-label">Tour stops (at least {{ min_stops }})</label>
+  <p class="text-muted small">Route stops in order — stop 1 is first on the walk.</p>
+
+  <div id="stops-container">
+    {% for i in range(1, initial_count + 1) %}
+    <div class="border rounded p-2 mb-2 stop-field" data-stop-index="{{ i }}">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <p class="small fw-bold mb-0 stop-label">Stop {{ i }}</p>
+        {% if i > min_stops %}
+        <button type="button" class="btn btn-outline-danger btn-sm py-0 remove-stop-btn">Remove</button>
+        {% endif %}
+      </div>
+      <input type="text" name="txt_stop_name_{{ i }}" class="form-control mb-1 stop-name"
+             placeholder="Stop name" {% if i <= min_stops %}required{% endif %}
+             value="{% if existing|length >= i %}{{ existing[i - 1].name }}{% endif %}">
+      <textarea name="txt_stop_desc_{{ i }}" class="form-control stop-desc" rows="2"
+                placeholder="Short description">{% if existing|length >= i %}{{ existing[i - 1].description }}{% endif %}</textarea>
+    </div>
+    {% endfor %}
+  </div>
+
+  <button type="button" class="btn btn-outline-secondary btn-sm" id="add-stop-btn">+ Add another stop</button>
+</div>
+
+<script>
+(function () {
+  const container = document.getElementById("stops-container");
+  const addBtn = document.getElementById("add-stop-btn");
+  if (!container || !addBtn) return;
+
+  const minStops = {{ min_stops }};
+  const maxStops = {{ max_stops }};
+
+  function currentCount() {
+    return container.querySelectorAll(".stop-field").length;
+  }
+
+  function nextIndex() {
+    let max = 0;
+    container.querySelectorAll(".stop-field").forEach(function (el) {
+      max = Math.max(max, parseInt(el.getAttribute("data-stop-index"), 10));
+    });
+    return max + 1;
+  }
+
+  function refreshLabels() {
+    container.querySelectorAll(".stop-field").forEach(function (el, idx) {
+      el.querySelector(".stop-label").textContent = "Stop " + (idx + 1);
+    });
+    addBtn.disabled = currentCount() >= maxStops;
+  }
+
+  function bindRemove(btn) {
+    btn.addEventListener("click", function () {
+      if (currentCount() <= minStops) return;
+      btn.closest(".stop-field").remove();
+      refreshLabels();
+    });
+  }
+
+  container.querySelectorAll(".remove-stop-btn").forEach(bindRemove);
+
+  addBtn.addEventListener("click", function () {
+    if (currentCount() >= maxStops) return;
+    const i = nextIndex();
+    const block = document.createElement("div");
+    block.className = "border rounded p-2 mb-2 stop-field";
+    block.setAttribute("data-stop-index", String(i));
+    block.innerHTML =
+      '<div class="d-flex justify-content-between align-items-center mb-1">' +
+        '<p class="small fw-bold mb-0 stop-label">Stop</p>' +
+        '<button type="button" class="btn btn-outline-danger btn-sm py-0 remove-stop-btn">Remove</button>' +
+      '</div>' +
+      '<input type="text" name="txt_stop_name_' + i + '" class="form-control mb-1 stop-name" placeholder="Stop name" required>' +
+      '<textarea name="txt_stop_desc_' + i + '" class="form-control stop-desc" rows="2" placeholder="Short description"></textarea>';
+    container.appendChild(block);
+    bindRemove(block.querySelector(".remove-stop-btn"));
+    refreshLabels();
+  });
+
+  refreshLabels();
+})();
+</script>

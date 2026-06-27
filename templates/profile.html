@@ -2,6 +2,7 @@
 {% block title %}Profile | SilkStep{% endblock %}
 
 {% block content %}
+{# simple read-only profile from flask-login user #}
 <section class="container py-5" style="max-width: 520px;">
   <h1 class="mb-4">My profile</h1>
   <ul class="list-group">
@@ -9,5 +10,10 @@
     <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
     <li class="list-group-item"><strong>Role:</strong> {{ user.role }}</li>
   </ul>
+  <div class="mt-3">
+    <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary btn-sm me-2">Edit profile</a>
+    <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary btn-sm">Change password</a>
+  </div>
+
 </section>
 {% endblock %}

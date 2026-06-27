@@ -1,27 +1,31 @@
 import sqlite3
 
-# booking queries — create, list, capacity check
+# bookings table queries
 
 
-def create_booking(tour_id, participant_id, tour_date, party_size, notes):
+def create_booking(tour_id, participant_id, tour_date, party_size, notes, announce_email="", announce_phone=""):
+    # participant books from tour detail form
     conn = sqlite3.connect("silkstep.db")
     conn.execute(
         """
-        INSERT INTO bookings (tour_id, participant_id, tour_date, party_size, notes, status)
-        VALUES (?, ?, ?, ?, ?, 'confirmed')
+        INSERT INTO bookings (tour_id, participant_id, tour_date, party_size, notes,
+                              announce_email, announce_phone, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmed')
         """,
-        (tour_id, participant_id, tour_date, party_size, notes),
+        (tour_id, participant_id, tour_date, party_size, notes, announce_email, announce_phone),
     )
     conn.commit()
     conn.close()
 
 
 def get_bookings_by_participant(participant_id):
+    # my bookings page
     conn = sqlite3.connect("silkstep.db")
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         """
         SELECT b.id, b.tour_id, b.tour_date, b.party_size, b.notes, b.status, b.created_at,
+               b.announce_email, b.announce_phone,
                t.title AS tour_title, t.schedule AS tour_schedule
         FROM bookings b
         JOIN tours t ON t.id = b.tour_id
@@ -35,11 +39,13 @@ def get_bookings_by_participant(participant_id):
 
 
 def get_bookings_by_guide(guide_id):
+    # guide dashboard — bookings on their tours only
     conn = sqlite3.connect("silkstep.db")
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         """
         SELECT b.id, b.tour_id, b.tour_date, b.party_size, b.notes, b.status, b.created_at,
+               b.announce_email, b.announce_phone,
                t.title AS tour_title,
                u.name AS participant_name, u.surname AS participant_surname, u.email AS participant_email
         FROM bookings b
@@ -55,12 +61,13 @@ def get_bookings_by_guide(guide_id):
 
 
 def get_all_bookings():
-    # admin page — full list with guide + participant names
+    # admin — every booking with guide + participant info
     conn = sqlite3.connect("silkstep.db")
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         """
         SELECT b.id, b.tour_id, b.tour_date, b.party_size, b.notes, b.status, b.created_at,
+               b.announce_email, b.announce_phone,
                t.title AS tour_title,
                g.name AS guide_name, g.surname AS guide_surname, g.email AS guide_email,
                u.name AS participant_name, u.surname AS participant_surname, u.email AS participant_email
@@ -76,6 +83,7 @@ def get_all_bookings():
 
 
 def cancel_booking(booking_id, participant_id):
+    # only delete if it belongs to this user
     conn = sqlite3.connect("silkstep.db")
     conn.execute("DELETE FROM bookings WHERE id = ? AND participant_id = ?", (booking_id, participant_id))
     conn.commit()
@@ -83,6 +91,7 @@ def cancel_booking(booking_id, participant_id):
 
 
 def tour_has_bookings(tour_id):
+    # if true, guide cant edit tour anymore
     conn = sqlite3.connect("silkstep.db")
     count = conn.execute("SELECT COUNT(*) FROM bookings WHERE tour_id = ?", (tour_id,)).fetchone()[0]
     conn.close()
@@ -90,6 +99,7 @@ def tour_has_bookings(tour_id):
 
 
 def count_bookings():
+    # admin stat card
     conn = sqlite3.connect("silkstep.db")
     count = conn.execute("SELECT COUNT(*) FROM bookings").fetchone()[0]
     conn.close()
@@ -97,7 +107,7 @@ def count_bookings():
 
 
 def get_booked_spots(tour_id, tour_date):
-    # sum party_size for one tour on one date — used for capacity check
+    # sum party_size — capacity check in book_tour()
     conn = sqlite3.connect("silkstep.db")
     booked = conn.execute(
         """

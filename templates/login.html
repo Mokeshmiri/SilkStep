@@ -11,6 +11,7 @@
         <div class="alert alert-danger">{{ error }}</div>
       {% endif %}
 
+      {# posts to do_login route #}
       <form method="POST" action="{{ url_for('do_login') }}">
         <div class="mb-3">
           <label class="form-label text-uppercase small text-muted">Email address</label>
@@ -20,6 +21,10 @@
         <div class="mb-3">
           <label class="form-label text-uppercase small text-muted">Password</label>
           <input type="password" name="txt_password" class="form-control" required>
+        </div>
+
+        <div class="text-end mb-3">
+          <a href="{{ url_for('forgot_password') }}" class="small">Forgot password?</a>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Log in</button>

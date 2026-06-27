@@ -1,9 +1,10 @@
 import sqlite3
 
-# tour db access — tours, languages, delete cleanup
+# tours + tour_languages tables
 
 
 def get_tours():
+    # home + tours page, includes language list and booking count
     conn = sqlite3.connect("silkstep.db")
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
@@ -21,6 +22,7 @@ def get_tours():
 
 
 def get_tours_by_language(language):
+    # filter dropdown on /tours
     if not language:
         return get_tours()
     conn = sqlite3.connect("silkstep.db")
@@ -51,6 +53,7 @@ def get_tour_by_id(tour_id):
 
 def create_tour(title, schedule, duration, payment, summary, photo_url,
                 meeting_point, meeting_map_link, max_participants, guide_id):
+    # returns new tour id
     conn = sqlite3.connect("silkstep.db")
     cursor = conn.cursor()
     cursor.execute(
@@ -87,7 +90,7 @@ def update_tour(tour_id, title, schedule, duration, payment, summary, photo_url,
 
 
 def delete_tour(tour_id):
-    # clean up related rows before deleting the tour
+    # remove linked languages, photos, bookings first
     conn = sqlite3.connect("silkstep.db")
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tour_languages WHERE tour_id = ?", (tour_id,))
@@ -110,6 +113,7 @@ def get_languages_for_tour(tour_id):
 
 
 def set_tour_languages(tour_id, languages):
+    # wipe old ones and save new checkboxes from form
     conn = sqlite3.connect("silkstep.db")
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tour_languages WHERE tour_id = ?", (tour_id,))

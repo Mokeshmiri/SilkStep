@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile | SilkStep{% endblock %}
+
+{% block content %}
+<section class="container py-5" style="max-width: 520px;">
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <h1 class="h4 mb-4 text-center">Edit profile</h1>
+
+      {% if form_error %}
+        <div class="alert alert-danger">{{ form_error }}</div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('edit_profile') }}">
+        <div class="mb-3">
+          <label class="form-label">First name</label>
+          <input type="text" name="txt_name" class="form-control"
+                 value="{{ user.name }}" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Last name</label>
+          <input type="text" name="txt_surname" class="form-control"
+                 value="{{ user.surname }}" required>
+        </div>
+
+        <p class="text-muted small mb-1">Email: {{ user.email }} (cannot be changed)</p>
+        <p class="text-muted small mb-3">Role: {{ user.role }}</p>
+
+        <button type="submit" class="btn btn-primary w-100">Save changes</button>
+      </form>
+
+      <hr class="my-4">
+
+      <p class="text-center mb-0">
+        <a href="{{ url_for('profile') }}">← Back to profile</a>
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}
