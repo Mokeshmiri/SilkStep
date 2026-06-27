@@ -5,10 +5,12 @@
 <section class="container py-5">
   <h1 class="mb-4">Popular tours in Tehran</h1>
 
+  {# flash error from redirect (e.g. locked tour) #}
   {% if page_error %}
     <div class="alert alert-warning">{{ page_error }}</div>
   {% endif %}
 
+  {# filter by language #}
   <form method="GET" action="{{ url_for('tours') }}" class="mb-4 d-flex gap-2">
     <select name="language" class="form-select" style="max-width: 220px;">
       <option value="">All languages</option>
@@ -41,6 +43,7 @@
           <p>{{ tour.summary }}</p>
           <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">View tour</a>
 
+          {# edit/delete only for tour owner or admin #}
           {% if current_user.is_authenticated and (current_user.role == 'admin' or (current_user.role == 'guide' and tour.guide_id == current_user.id)) %}
             <a href="{{ url_for('edit_tour', tour_id=tour.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
             <form method="POST" action="{{ url_for('delete_tour_route', tour_id=tour.id) }}" class="d-inline">

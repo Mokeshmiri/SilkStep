@@ -1,10 +1,11 @@
 import sqlite3
 
-# exam allows up to 5 promo photos per tour
+# tour photos table — up to 5 per tour (exam requirement)
 MAX_PHOTOS_PER_TOUR = 5
 
 
 def get_photos_for_tour(tour_id):
+    # gallery on tour detail + edit page
     conn = sqlite3.connect("silkstep.db")
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
@@ -16,6 +17,7 @@ def get_photos_for_tour(tour_id):
 
 
 def count_photos_for_tour(tour_id):
+    # check before upload so we dont go over 5
     conn = sqlite3.connect("silkstep.db")
     count = conn.execute("SELECT COUNT(*) FROM tour_photos WHERE tour_id = ?", (tour_id,)).fetchone()[0]
     conn.close()
@@ -23,6 +25,7 @@ def count_photos_for_tour(tour_id):
 
 
 def add_photo(tour_id, photo_path):
+    # save db row after file lands in static/uploads
     sort_order = count_photos_for_tour(tour_id) + 1
     conn = sqlite3.connect("silkstep.db")
     cursor = conn.cursor()
@@ -38,6 +41,7 @@ def add_photo(tour_id, photo_path):
 
 
 def get_photo_by_id(photo_id):
+    # delete photo route
     conn = sqlite3.connect("silkstep.db")
     conn.row_factory = sqlite3.Row
     row = conn.execute("SELECT * FROM tour_photos WHERE id = ?", (photo_id,)).fetchone()
@@ -46,6 +50,7 @@ def get_photo_by_id(photo_id):
 
 
 def delete_photo(photo_id):
+    # row only — app.py also deletes the file on disk
     conn = sqlite3.connect("silkstep.db")
     conn.execute("DELETE FROM tour_photos WHERE id = ?", (photo_id,))
     conn.commit()

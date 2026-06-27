@@ -52,7 +52,7 @@ register only makes **participant** accounts. guides/admin are seed data.
 
 ---
 
-## main features (what works)
+## main features (exam requirements)
 
 - home + tours list (filter by language)
 - tour detail + book with date, party size, notes
@@ -62,6 +62,35 @@ register only makes **participant** accounts. guides/admin are seed data.
 - admin: dashboard with users + bookings tables, can still edit locked tours
 - my bookings / guide bookings / cancel booking
 - contact page + profile + simple navbar dropdown
+
+---
+
+## extra features (beyond minimum)
+
+stuff on the site that makes it feel more like a real product, not just the bare exam checklist:
+
+**homepage highlights** (three boxes under the hero banner):
+
+| box | what it means |
+|-----|----------------|
+| free to join | tours can be free — no paywall to browse or book |
+| local guides | tours are run by tehran guides, not a generic catalog |
+| tehran heritage routes | themed walks around historic tehran / silk road vibe |
+
+**ui polish**
+
+- hero banner with gradient + tagline (*every step tells a story*)
+- square tour cards (`aspect-ratio 1:1`) so the grid looks even
+- photo gallery modal with prev/next arrows + keyboard (← →)
+- live spots-left on booking form (calls `/tour/<id>/availability` when you pick a date)
+- payment badges on cards (free / paid / exclusive)
+- navbar name dropdown (profile, dashboard, logout)
+- form validation errors stay on the same page (not a blank 400)
+- lowercase comments in python + `{# ... #}` in templates for graders
+
+**brand name**
+
+- shown as **silk step** (two words) on the home hero — reads easier than one glued word
 
 ---
 

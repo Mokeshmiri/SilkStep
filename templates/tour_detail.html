@@ -3,6 +3,7 @@
 
 {% block content %}
 <section class="container py-5" style="max-width: 760px;">
+  {# tour info #}
   <h1 class="mb-3">{{ tour.title }}</h1>
   <p><strong>Schedule:</strong> {{ tour.schedule }}</p>
   <p><strong>Duration:</strong> {{ tour.duration }}</p>
@@ -14,6 +15,22 @@
   {% endif %}
   <p><strong>Max participants:</strong> {{ tour.max_participants or "Not set" }}</p>
 
+  {# route stops from tour_stops table #}
+  {% if stops %}
+    <h2 class="h6 mt-3">Tour route</h2>
+    <ol class="list-group list-group-numbered mb-3">
+      {% for s in stops %}
+      <li class="list-group-item">
+        <strong>{{ s.name }}</strong>
+        {% if s.description %}
+          <p class="mb-0 text-muted small">{{ s.description }}</p>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+
+  {# photo gallery — click opens modal #}
   {% if photos %}
     <h2 class="h6">Tour photos <span class="text-muted small">(click to enlarge)</span></h2>
     <div class="row g-2 mb-3">
@@ -42,6 +59,7 @@
   {% endif %}
   <p>{{ tour.summary }}</p>
 
+  {# booking — participants only; guides blocked by exam rule #}
   {% if current_user.role == 'participant' %}
     <hr>
     <h2 class="h5 mb-3">Book this tour</h2>
@@ -66,6 +84,23 @@
         <textarea name="txt_notes" class="form-control" rows="2"
           placeholder="e.g. 2 adults + 1 child, we prefer slow pace"></textarea>
       </div>
+
+      {# contact for tour updates / announcements — at least one required #}
+      <div class="mb-3">
+        <label class="form-label">Contact for announcements</label>
+        <p class="text-muted small">We use this to send tour updates (time changes, weather, etc.). Give email and/or phone.</p>
+        <div class="mb-2">
+          <label class="form-label small text-muted">Email</label>
+          <input type="email" name="txt_announce_email" class="form-control"
+                 value="{{ current_user.email }}" placeholder="you@example.com">
+        </div>
+        <div>
+          <label class="form-label small text-muted">Phone (optional)</label>
+          <input type="tel" name="txt_announce_phone" class="form-control"
+                 placeholder="e.g. +98 912 000 0000">
+        </div>
+      </div>
+
       <button type="submit" class="btn btn-primary">Book now</button>
     </form>
     <div class="alert alert-info mt-3 mb-0">
@@ -85,6 +120,7 @@
 
   <a href="{{ url_for('tours') }}" class="btn btn-link mt-3 ps-0">← Back to tours</a>
 </section>
+{# fullscreen photo viewer with prev/next #}
 <div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content bg-transparent border-0 position-relative">
@@ -100,6 +136,7 @@
   </div>
 </div>
 
+{# gallery nav: arrows + keyboard #}
 <script>
   const photoModal = document.getElementById("photoModal");
   const photoModalImage = document.getElementById("photoModalImage");
@@ -158,6 +195,7 @@
   }
 </script>
 {% if current_user.is_authenticated and current_user.role == 'participant' %}
+{# live spots left — calls /availability when date changes #}
 <script>
   const tourId = {{ tour.id }};
   const dateInput = document.getElementById("tour_date");
