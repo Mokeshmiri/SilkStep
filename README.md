@@ -126,10 +126,6 @@ from app import app as application
 6. make sure `silkstep.db` is uploaded too (it already has the sample data).
 7. reload the web app, then put the live url in `credentials.txt`.
 
-## still todo
-
-- deploy on pythonanywhere + paste the live url into credentials.txt
-
 ---
 
 ## project structure (short)
