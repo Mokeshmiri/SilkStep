@@ -38,15 +38,6 @@
     {% include "_tour_schedule_fields.html" %}
 
     <div class="mb-3">
-      <label class="form-label">Payment type</label>
-      <select name="txt_payment" class="form-select" required>
-        <option value="Free Tour" {% if tour.payment == "Free Tour" %}selected{% endif %}>Free Tour</option>
-        <option value="Paid Tour" {% if tour.payment == "Paid Tour" %}selected{% endif %}>Paid Tour</option>
-        <option value="Exclusive Tour" {% if tour.payment == "Exclusive Tour" %}selected{% endif %}>Exclusive Tour</option>
-      </select>
-    </div>
-
-    <div class="mb-3">
       <label class="form-label">Languages offered</label>
       <p class="text-muted small">Select one or more</p>
 

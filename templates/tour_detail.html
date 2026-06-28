@@ -19,7 +19,6 @@
   <p><strong>Duration:</strong>
     {% if tour.duration_minutes %}{{ tour.duration_minutes }} minutes{% else %}{{ tour.duration }}{% endif %}
   </p>
-  <p><strong>Payment:</strong> {{ tour.payment }}</p>
   <p><strong>Languages:</strong> {{ tour.languages }}</p>
   <p><strong>Meeting point:</strong> {{ tour.meeting_point or "Not set" }}</p>
   {% if tour.meeting_map_link %}

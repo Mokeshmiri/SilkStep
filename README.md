@@ -95,7 +95,6 @@ stuff on the site that makes it feel more like a real product, not just the bare
 - square tour cards (`aspect-ratio 1:1`) so the grid looks even
 - photo gallery modal with prev/next arrows + keyboard (left/right keys)
 - live spots-left on booking form (calls `/tour/<id>/availability` when you pick a date)
-- payment badges on cards (free / paid / exclusive)
 - navbar name dropdown (profile, dashboard, logout)
 - form validation errors stay on the same page (not a blank 400)
 - tour stops (4+ per route) on create/edit + tour detail page
