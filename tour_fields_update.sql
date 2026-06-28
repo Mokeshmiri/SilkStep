@@ -1,2 +1,0 @@
-ALTER TABLE tours ADD COLUMN meeting_point TEXT;
-ALTER TABLE tours ADD COLUMN max_participants INTEGER DEFAULT 15;

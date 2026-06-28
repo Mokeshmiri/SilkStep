@@ -2,31 +2,21 @@
 {% block title %}New Tour | SilkStep{% endblock %}
 
 {% block content %}
-<section class="container py-5" style="max-width: 600px;">
+<section class="container py-5 mw-600">
   <h1 class="mb-4">Create a new tour</h1>
 
   {% if form_error %}
     <div class="alert alert-danger">{{ form_error }}</div>
   {% endif %}
 
-  {# guide tour form — multipart for photos #}
+  {# guide tour form - multipart for photos #}
   <form method="POST" action="{{ url_for('new_tour') }}" enctype="multipart/form-data">
     <div class="mb-3">
       <label class="form-label">Title</label>
       <input type="text" name="txt_title" class="form-control" value="{{ form.title or '' }}" required>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">Schedule</label>
-      <input type="text" name="txt_schedule" class="form-control" placeholder="Sat & Sun at 10:00 AM"
-             value="{{ form.schedule or '' }}" required>
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Duration</label>
-      <input type="text" name="txt_duration" class="form-control" placeholder="3 hours"
-             value="{{ form.duration or '' }}" required>
-    </div>
+    {% include "_tour_schedule_fields.html" %}
 
     <div class="mb-3">
       <label class="form-label">Payment type</label>
@@ -71,7 +61,7 @@
       <p class="text-muted small mb-0">optional: paste google maps link for this meeting point</p>
     </div>
 
-    <div class="mb-3" style="max-width: 280px;">
+    <div class="mb-3 mw-280">
       <label class="form-label">Max participants</label>
       <p class="text-muted small">max number of people who can join this tour</p>
       <input type="number" name="txt_max_participants" class="form-control"

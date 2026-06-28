@@ -4,35 +4,42 @@
   {# hero banner #}
   <header class="hero text-center text-white">
     <div class="container py-5">
-      <h1 class="display-3 fw-bold">Silk Step</h1>
+      <span class="hero-badge">Tehran · free walking tours</span>
+      <h1 class="display-2 fw-bold mb-2">Silk Step</h1>
       <p class="lead mb-3">Every step tells a story.</p>
       <p class="hero-sub mb-4">Free walking tours in Tehran, inspired by Silk Road history.</p>
-      <a href="{{ url_for('tours') }}" class="btn btn-light btn-lg">Browse tours</a>
+      <a href="{{ url_for('tours') }}" class="btn btn-light btn-lg px-4">Browse tours</a>
     </div>
   </header>
 
-  {# three selling points — short titles, not long paragraphs #}
-  <section class="container py-4">
+  {# three selling points - short titles with a small icon #}
+  <section class="container py-5">
     <div class="row g-3 text-center">
       <div class="col-md-4">
-        <div class="trust-box">
-          <h2 class="trust-title h4 mb-0">Free to join</h2>
+        <div class="trust-box h-100">
+          <div class="trust-icon">🎟️</div>
+          <h2 class="trust-title h4 mb-1">Free to join</h2>
+          <p class="text-muted small mb-0">no fixed price, tip your guide if you like</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="trust-box">
-          <h2 class="trust-title h4 mb-0">Local guides</h2>
+        <div class="trust-box h-100">
+          <div class="trust-icon">🧭</div>
+          <h2 class="trust-title h4 mb-1">Local guides</h2>
+          <p class="text-muted small mb-0">real tehran guides, not a generic catalog</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="trust-box">
-          <h2 class="trust-title h4 mb-0">Tehran heritage routes</h2>
+        <div class="trust-box h-100">
+          <div class="trust-icon">🏛️</div>
+          <h2 class="trust-title h4 mb-1">Tehran heritage routes</h2>
+          <p class="text-muted small mb-0">themed walks around historic tehran</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="tours" class="container py-5">
+  <section id="tours" class="container pb-5">
     <h2 class="mb-4">Popular tours in Tehran</h2>
     {# tour cards from db #}
     <div class="row g-4">
@@ -52,7 +59,8 @@
               <span class="badge bg-secondary mb-2">{{ tour.payment }}</span>
             {% endif %}
             <h3 class="h5">{{ tour.title }}</h3>
-            <p class="text-muted small"><strong>Languages:</strong> {{ tour.languages or "Not set" }}</p>
+            <p class="text-muted small mb-1">by {{ tour.guide_name or "SilkStep" }}</p>
+            <p class="text-muted small mb-2"><strong>Languages:</strong> {{ tour.languages or "Not set" }}</p>
             <p>{{ tour.summary }}</p>
             <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">View tour</a>
           </div>
@@ -68,7 +76,7 @@
       <h2 class="mb-3">Why SilkStep?</h2>
       <p class="mb-0">
         SilkStep connects travelers with local guides through themed walking routes in Tehran.
-        Like platforms such as FREETOUR and Persian Walk, we focus on authentic city stories —
+        Like platforms such as FREETOUR and Persian Walk, we focus on authentic city stories -
         but our project is built as a Flask web app with booking and guide management for the course exam.
       </p>
     </div>

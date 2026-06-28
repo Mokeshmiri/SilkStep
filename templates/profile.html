@@ -3,13 +3,25 @@
 
 {% block content %}
 {# simple read-only profile from flask-login user #}
-<section class="container py-5" style="max-width: 520px;">
+<section class="container py-5 mw-520">
   <h1 class="mb-4">My profile</h1>
   <ul class="list-group">
     <li class="list-group-item"><strong>Name:</strong> {{ user.name }} {{ user.surname }}</li>
     <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
     <li class="list-group-item"><strong>Role:</strong> {{ user.role }}</li>
+    {% if user.role == 'guide' %}
+      <li class="list-group-item">
+        <strong>Languages I speak:</strong>
+        {{ languages | join(", ") if languages else "none set" }}
+      </li>
+    {% endif %}
   </ul>
+
+  {% if user.role == 'guide' %}
+    <div class="mt-3">
+      <a href="{{ url_for('guide_bookings') }}" class="btn btn-outline-dark btn-sm">My tours &amp; reservations</a>
+    </div>
+  {% endif %}
   <div class="mt-3">
     <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary btn-sm me-2">Edit profile</a>
     <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary btn-sm">Change password</a>

@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS tour_stops (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tour_id INTEGER NOT NULL,
-    stop_order INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    description TEXT NOT NULL,
-    FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
-);

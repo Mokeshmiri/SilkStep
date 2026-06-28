@@ -19,20 +19,47 @@ h1 {
 }
 
 .hero {
-    background: linear-gradient(135deg, #1f2a37, #4b2e19);
+    background:
+        radial-gradient(circle at 20% 20%, rgba(180, 120, 60, 0.35), transparent 45%),
+        linear-gradient(135deg, #1f2a37, #4b2e19);
+    border-bottom: 4px solid #c89b6a;
 }
-  
+
+.hero-badge {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.25rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
 .hero-sub {
     max-width: 700px;
     margin: 0 auto;
     opacity: 0.95;
 }
-  
+
 .trust-box {
     background: #fff;
     border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    padding: 1.5rem 1rem;
+    border-radius: 0.75rem;
+    padding: 1.75rem 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.trust-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.trust-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+    margin-bottom: 0.5rem;
 }
 
 .trust-title {
@@ -91,4 +118,29 @@ h1 {
 
 .photo-nav-next {
   right: 0.5rem;
+}
+
+/* weekly schedule fields on new/edit tour forms */
+.schedule-day {
+  min-width: 140px;
+}
+
+.schedule-time {
+  max-width: 140px;
+}
+
+/* max-width helpers so pages dont stretch too wide (kept out of the html) */
+.mw-280 { max-width: 280px; }
+.mw-480 { max-width: 480px; }
+.mw-520 { max-width: 520px; }
+.mw-600 { max-width: 600px; }
+.mw-760 { max-width: 760px; }
+
+.photo-modal-img {
+  max-height: 85vh;
+  width: auto;
+}
+
+.report-evidence {
+  max-width: 320px;
 }

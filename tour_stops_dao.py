@@ -1,6 +1,6 @@
 import sqlite3
 
-# tour stops — at least 4 per tour (exam requirement)
+# tour stops - at least 4 per tour (exam requirement)
 MIN_STOPS_PER_TOUR = 4
 MAX_STOPS_PER_TOUR = 15
 

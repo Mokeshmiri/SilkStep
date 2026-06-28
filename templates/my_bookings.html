@@ -5,6 +5,10 @@
 <section class="container py-5">
   <h1 class="mb-4">My bookings</h1>
 
+  {% if page_error %}
+    <div class="alert alert-warning">{{ page_error }}</div>
+  {% endif %}
+
   {% if bookings %}
     {# list with cancel button per booking #}
     <div class="list-group">
@@ -17,11 +21,23 @@
                   {{ b.tour_title }}
                 </a>
               </h2>
-              <p class="mb-1 text-muted small">Schedule: {{ b.tour_schedule }}</p>
-              <p class="mb-1">Booked date: {{ b.tour_date }}</p>
+              <p class="mb-1">Booked date: {{ b.tour_date }}{% if b.start_time %} at {{ b.start_time }}{% endif %}</p>
+              {% if b.meeting_point %}
+                <p class="mb-1 text-muted small">Meeting point: {{ b.meeting_point }}</p>
+              {% endif %}
               {% if b.party_size %}
                 <p class="mb-1">people: {{ b.party_size }}</p>
               {% endif %}
+              
+              {% if b.guests %}
+                <p class="mb-1 text-muted small">
+                  extra participants:
+                  {% for g in b.guests %}
+                    {{ g.first_name }} {{ g.last_name }}{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                </p>
+              {% endif %}
+
               {% if b.notes %}
                 <p class="mb-1 text-muted small">notes: {{ b.notes }}</p>
               {% endif %}
@@ -35,12 +51,16 @@
               {% endif %}
               <span class="badge bg-success">{{ b.status }}</span>
             </div>
-            <form method="POST" action="{{ url_for('cancel_booking', booking_id=b.id) }}">
-              <button type="submit" class="btn btn-outline-danger btn-sm"
-                      onclick="return confirm('Cancel this booking?');">
-                Cancel
-              </button>
-            </form>
+            {% if b.can_cancel %}
+              <form method="POST" action="{{ url_for('cancel_booking', booking_id=b.id) }}">
+                <button type="submit" class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Cancel this booking?');">
+                  Cancel
+                </button>
+              </form>
+            {% else %}
+              <span class="text-muted small">Cancellation closed<br>(less than 24h to start)</span>
+            {% endif %}
           </div>
         </div>
       {% endfor %}

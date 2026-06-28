@@ -4,14 +4,18 @@ import sqlite3
 
 
 def new_user(name, surname, email, password, role):
-    # insert after register form
+    # insert after register form, returns the new user id
     conn = sqlite3.connect("silkstep.db")
-    conn.execute(
+    cursor = conn.cursor()
+    cursor.execute(
         "INSERT INTO users (name, surname, email, password, role) VALUES (?, ?, ?, ?, ?)",
         (name, surname, email, password, role),
     )
+    user_id = cursor.lastrowid
     conn.commit()
+    cursor.close()
     conn.close()
+    return user_id
 
 
 def get_user_by_email(email):
@@ -60,6 +64,32 @@ def update_password(user_id, new_password):
     )
     conn.commit()
     conn.close()
+
+def get_user_languages(user_id):
+    # languages a guide speaks (used to limit tour languages + show on profile)
+    conn = sqlite3.connect("silkstep.db")
+    rows = conn.execute(
+        "SELECT language FROM user_languages WHERE user_id = ? ORDER BY language",
+        (user_id,),
+    ).fetchall()
+    conn.close()
+    return [row[0] for row in rows]
+
+
+def set_user_languages(user_id, languages):
+    # wipe + save the languages picked at registration
+    conn = sqlite3.connect("silkstep.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM user_languages WHERE user_id = ?", (user_id,))
+    for lang in languages:
+        cursor.execute(
+            "INSERT INTO user_languages (user_id, language) VALUES (?, ?)",
+            (user_id, lang),
+        )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 
 def count_users():
     conn = sqlite3.connect("silkstep.db")

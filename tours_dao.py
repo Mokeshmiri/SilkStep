@@ -11,9 +11,11 @@ def get_tours():
         """
         SELECT t.*,
                GROUP_CONCAT(tl.language, ', ') AS languages,
+               (gu.name || ' ' || gu.surname) AS guide_name,
                (SELECT COUNT(*) FROM bookings b WHERE b.tour_id = t.id) AS booking_count
         FROM tours t
         LEFT JOIN tour_languages tl ON tl.tour_id = t.id
+        LEFT JOIN users gu ON gu.id = t.guide_id
         GROUP BY t.id
         """
     ).fetchall()
@@ -31,9 +33,11 @@ def get_tours_by_language(language):
         """
         SELECT t.*,
                GROUP_CONCAT(tl.language, ', ') AS languages,
+               (gu.name || ' ' || gu.surname) AS guide_name,
                (SELECT COUNT(*) FROM bookings b WHERE b.tour_id = t.id) AS booking_count
         FROM tours t
         JOIN tour_languages tl ON tl.tour_id = t.id
+        LEFT JOIN users gu ON gu.id = t.guide_id
         WHERE tl.language = ?
         GROUP BY t.id
         """,
@@ -52,18 +56,21 @@ def get_tour_by_id(tour_id):
 
 
 def create_tour(title, schedule, duration, payment, summary, photo_url,
-                meeting_point, meeting_map_link, max_participants, guide_id):
-    # returns new tour id
+                meeting_point, meeting_map_link, max_participants, guide_id,
+                duration_minutes=None):
+    # returns new tour id; schedule/duration are display text, duration_minutes is structured
     conn = sqlite3.connect("silkstep.db")
     cursor = conn.cursor()
     cursor.execute(
         """
         INSERT INTO tours (title, schedule, duration, payment, summary, photo_url,
-                           meeting_point, meeting_map_link, max_participants, guide_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                           meeting_point, meeting_map_link, max_participants, guide_id,
+                           duration_minutes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (title, schedule, duration, payment, summary, photo_url,
-         meeting_point, meeting_map_link, max_participants, guide_id),
+         meeting_point, meeting_map_link, max_participants, guide_id,
+         duration_minutes),
     )
     tour_id = cursor.lastrowid
     conn.commit()
@@ -73,17 +80,19 @@ def create_tour(title, schedule, duration, payment, summary, photo_url,
 
 
 def update_tour(tour_id, title, schedule, duration, payment, summary, photo_url,
-                meeting_point, meeting_map_link, max_participants):
+                meeting_point, meeting_map_link, max_participants,
+                duration_minutes=None):
     conn = sqlite3.connect("silkstep.db")
     conn.execute(
         """
         UPDATE tours
         SET title = ?, schedule = ?, duration = ?, payment = ?, summary = ?,
-            photo_url = ?, meeting_point = ?, meeting_map_link = ?, max_participants = ?
+            photo_url = ?, meeting_point = ?, meeting_map_link = ?, max_participants = ?,
+            duration_minutes = ?
         WHERE id = ?
         """,
         (title, schedule, duration, payment, summary, photo_url,
-         meeting_point, meeting_map_link, max_participants, tour_id),
+         meeting_point, meeting_map_link, max_participants, duration_minutes, tour_id),
     )
     conn.commit()
     conn.close()
@@ -95,6 +104,8 @@ def delete_tour(tour_id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tour_languages WHERE tour_id = ?", (tour_id,))
     cursor.execute("DELETE FROM tour_photos WHERE tour_id = ?", (tour_id,))
+    cursor.execute("DELETE FROM tour_stops WHERE tour_id = ?", (tour_id,))
+    cursor.execute("DELETE FROM tour_schedule WHERE tour_id = ?", (tour_id,))
     cursor.execute("DELETE FROM bookings WHERE tour_id = ?", (tour_id,))
     cursor.execute("DELETE FROM tours WHERE id = ?", (tour_id,))
     conn.commit()

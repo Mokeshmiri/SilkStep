@@ -2,7 +2,7 @@
 {% block title %}Edit Profile | SilkStep{% endblock %}
 
 {% block content %}
-<section class="container py-5" style="max-width: 520px;">
+<section class="container py-5 mw-520">
   <div class="card shadow-sm">
     <div class="card-body p-4">
       <h1 class="h4 mb-4 text-center">Edit profile</h1>
@@ -22,6 +22,21 @@
           <input type="text" name="txt_surname" class="form-control"
                  value="{{ user.surname }}" required>
         </div>
+
+        {# guides keep their spoken languages here; tours can only use these #}
+        {% if user.role == 'guide' %}
+        <div class="mb-3">
+          <label class="form-label">Languages I speak</label>
+          {% for lang in available_languages %}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="txt_languages"
+                   value="{{ lang }}" id="edit_lang_{{ loop.index }}"
+                   {% if lang in (selected_languages or []) %}checked{% endif %}>
+            <label class="form-check-label" for="edit_lang_{{ loop.index }}">{{ lang }}</label>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
 
         <p class="text-muted small mb-1">Email: {{ user.email }} (cannot be changed)</p>
         <p class="text-muted small mb-3">Role: {{ user.role }}</p>

@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  {# top navbar — links change when logged in #}
+  {# top navbar - links change when logged in #}
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('home') }}">SilkStep</a>
@@ -55,7 +55,10 @@
     </div>
   </nav>
 
-  {% block content %}{% endblock %}
+  {# main page content - each page fills this block #}
+  <main>
+    {% block content %}{% endblock %}
+  </main>
 
   <footer class="bg-dark text-white py-3 mt-4">
     <div class="container small">&copy; 2026 SilkStep</div>

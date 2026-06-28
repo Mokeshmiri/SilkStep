@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS tour_photos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tour_id INTEGER NOT NULL,
-    photo_path TEXT NOT NULL,
-    sort_order INTEGER NOT NULL DEFAULT 1,
-    FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
-);

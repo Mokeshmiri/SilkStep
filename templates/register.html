@@ -2,7 +2,7 @@
 {% block title %}Register | SilkStep{% endblock %}
 
 {% block content %}
-<section class="container py-5" style="max-width: 520px;">
+<section class="container py-5 mw-520">
   <div class="card shadow-sm">
     <div class="card-body p-4">
       <h1 class="h4 mb-4 text-center">Create account</h1>
@@ -11,26 +11,62 @@
         <div class="alert alert-danger">{{ form_error }}</div>
       {% endif %}
 
-      {# self-register — always creates participant role #}
+      {# register as participant or guide; guides also pick spoken languages #}
       <form method="POST" action="{{ url_for('register') }}">
         <div class="mb-3">
           <label class="form-label">First name</label>
-          <input type="text" name="txt_name" class="form-control" required>
+          <input type="text" name="txt_name" class="form-control" value="{{ form.name or '' }}" required>
         </div>
         <div class="mb-3">
           <label class="form-label">Last name</label>
-          <input type="text" name="txt_surname" class="form-control" required>
+          <input type="text" name="txt_surname" class="form-control" value="{{ form.surname or '' }}" required>
         </div>
         <div class="mb-3">
           <label class="form-label">Email</label>
-          <input type="email" name="txt_email" class="form-control" required>
+          <input type="email" name="txt_email" class="form-control" value="{{ form.email or '' }}" required>
         </div>
         <div class="mb-3">
           <label class="form-label">Password</label>
           <input type="password" name="txt_password" class="form-control" required>
         </div>
+
+        <div class="mb-3">
+          <label class="form-label">I want to register as</label>
+          <select name="txt_role" id="role_select" class="form-select">
+            <option value="participant" {% if form.role != 'guide' %}selected{% endif %}>Participant (book tours)</option>
+            <option value="guide" {% if form.role == 'guide' %}selected{% endif %}>Guide (create tours)</option>
+          </select>
+        </div>
+
+        {# only relevant for guides - the languages they can run tours in #}
+        <div class="mb-3 {% if form.role != 'guide' %}d-none{% endif %}" id="guide_languages">
+          <label class="form-label">Languages you speak</label>
+          <p class="text-muted small mb-2">Your tours can only be offered in these languages.</p>
+          {% for lang in available_languages %}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="txt_languages"
+                   value="{{ lang }}" id="reg_lang_{{ loop.index }}"
+                   {% if lang in (form.languages_list or []) %}checked{% endif %}>
+            <label class="form-check-label" for="reg_lang_{{ loop.index }}">{{ lang }}</label>
+          </div>
+          {% endfor %}
+        </div>
+
         <button type="submit" class="btn btn-primary w-100">Register</button>
       </form>
+
+      {# show/hide the language block when the role changes #}
+      <script>
+        const roleSelect = document.getElementById("role_select");
+        const guideLanguages = document.getElementById("guide_languages");
+        roleSelect.addEventListener("change", function () {
+          if (roleSelect.value === "guide") {
+            guideLanguages.classList.remove("d-none");
+          } else {
+            guideLanguages.classList.add("d-none");
+          }
+        });
+      </script>
 
       <hr class="my-4">
 

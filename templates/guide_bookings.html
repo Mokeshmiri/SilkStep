@@ -3,39 +3,87 @@
 
 {% block content %}
 <section class="container py-5">
-  <h1 class="mb-4">Bookings for my tours</h1>
+  <h1 class="mb-4">My tours &amp; reservations</h1>
   <a href="{{ url_for('new_tour') }}" class="btn btn-primary btn-sm mb-3">Create new tour</a>
 
-  {% if bookings %}
-    {# bookings on tours this guide owns #}
-    <div class="list-group">
-      {% for b in bookings %}
-        <div class="list-group-item">
-          <h2 class="h6 mb-1">
-            <a href="{{ url_for('tour_detail', tour_id=b.tour_id) }}" class="text-decoration-none">
-              {{ b.tour_title }}
+  {% if page_error %}
+    <div class="alert alert-warning">{{ page_error }}</div>
+  {% endif %}
+
+  {% if groups %}
+    {# reservations grouped by tour + date, with the total expected people #}
+    {% for group in groups %}
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <a href="{{ url_for('tour_detail', tour_id=group.tour_id) }}" class="text-decoration-none fw-bold">
+              {{ group.tour_title }}
             </a>
-          </h2>
-          <p class="mb-1">Participant: {{ b.participant_name }} {{ b.participant_surname }} ({{ b.participant_email }})</p>
-          <p class="mb-1">Tour date: {{ b.tour_date }}</p>
-          <p class="mb-1">People: {{ b.party_size }}</p>
-          {% if b.notes %}
-            <p class="mb-1 text-muted small">Notes: {{ b.notes }}</p>
-          {% endif %}
-          {% if b.announce_email or b.announce_phone %}
-            <p class="mb-1 text-muted small">
-              Contact for updates:
-              {% if b.announce_email %}{{ b.announce_email }}{% endif %}
-              {% if b.announce_email and b.announce_phone %} · {% endif %}
-              {% if b.announce_phone %}{{ b.announce_phone }}{% endif %}
-            </p>
-          {% endif %}
-          <span class="badge bg-success">{{ b.status }}</span>
+            <span class="text-muted">- {{ group.tour_date }}{% if group.start_time %} at {{ group.start_time }}{% endif %}</span>
+            {% if group.is_past %}<span class="badge bg-secondary ms-1">past</span>{% endif %}
+          </div>
+          <span class="badge bg-dark">{{ group.total_people }} people total</span>
         </div>
-      {% endfor %}
-    </div>
+        <ul class="list-group list-group-flush">
+          {% for b in group.bookings %}
+          <li class="list-group-item">
+            <strong>{{ b.participant_name }} {{ b.participant_surname }}</strong>
+            <span class="text-muted small">({{ b.participant_email }})</span>
+            - {{ b.party_size }} people
+            {% if b.guests %}
+              <div class="text-muted small">
+                extra: {% for g in b.guests %}{{ g.first_name }} {{ g.last_name }}{% if not loop.last %}, {% endif %}{% endfor %}
+              </div>
+            {% endif %}
+            {% if b.announce_email or b.announce_phone %}
+              <div class="text-muted small">
+                contact:
+                {% if b.announce_email %}{{ b.announce_email }}{% endif %}
+                {% if b.announce_email and b.announce_phone %} · {% endif %}
+                {% if b.announce_phone %}{{ b.announce_phone }}{% endif %}
+              </div>
+            {% endif %}
+            {% if b.notes %}<div class="text-muted small">notes: {{ b.notes }}</div>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+
+        {# post-tour report: only for dates that already happened #}
+        {% if group.is_past %}
+          <div class="card-body border-top">
+            {% if group.report %}
+              <p class="mb-1"><strong>Reported attendance:</strong> {{ group.report.attended_count }} people</p>
+              {% if group.report.photo_path %}
+                <img src="{{ url_for('static', filename=group.report.photo_path) }}"
+                     class="img-fluid rounded report-evidence" alt="evidence photo">
+              {% endif %}
+              <p class="text-muted small mb-0 mt-1">you can submit again to update it.</p>
+            {% else %}
+              <p class="mb-2 fw-bold">Post-tour report</p>
+            {% endif %}
+            <form method="POST" action="{{ url_for('submit_report') }}" enctype="multipart/form-data"
+                  class="row g-2 align-items-end mt-1">
+              <input type="hidden" name="tour_id" value="{{ group.tour_id }}">
+              <input type="hidden" name="tour_date" value="{{ group.tour_date }}">
+              <div class="col-sm-4">
+                <label class="form-label small mb-1">People who actually came</label>
+                <input type="number" name="txt_attended" class="form-control" min="0"
+                       value="{{ group.report.attended_count if group.report else '' }}" required>
+              </div>
+              <div class="col-sm-5">
+                <label class="form-label small mb-1">Evidence photo</label>
+                <input type="file" name="txt_evidence" class="form-control" accept="image/*">
+              </div>
+              <div class="col-sm-3">
+                <button type="submit" class="btn btn-outline-dark w-100">Save report</button>
+              </div>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
   {% else %}
-    <p>No bookings yet for your tours.</p>
+    <p>No reservations yet for your tours.</p>
   {% endif %}
 </section>
 {% endblock %}

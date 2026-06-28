@@ -10,15 +10,34 @@
     <div class="alert alert-warning">{{ page_error }}</div>
   {% endif %}
 
-  {# filter by language #}
-  <form method="GET" action="{{ url_for('tours') }}" class="mb-4 d-flex gap-2">
-    <select name="language" class="form-select" style="max-width: 220px;">
-      <option value="">All languages</option>
-      {% for lang in available_languages %}
-        <option value="{{ lang }}" {% if lang == selected_language %}selected{% endif %}>{{ lang }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit" class="btn btn-outline-primary btn-sm">Filter</button>
+  {# filter by language, date and duration #}
+  <form method="GET" action="{{ url_for('tours') }}" class="mb-4 row g-2 align-items-end">
+    <div class="col-sm-3">
+      <label class="form-label small mb-1">Language</label>
+      <select name="language" class="form-select">
+        <option value="">All languages</option>
+        {% for lang in available_languages %}
+          <option value="{{ lang }}" {% if lang == selected_language %}selected{% endif %}>{{ lang }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-3">
+      <label class="form-label small mb-1">Date</label>
+      <input type="date" name="date" class="form-control" value="{{ selected_date }}">
+    </div>
+    <div class="col-sm-3">
+      <label class="form-label small mb-1">Duration</label>
+      <select name="duration" class="form-select">
+        <option value="">Any duration</option>
+        {% for key, label in duration_buckets %}
+          <option value="{{ key }}" {% if key == selected_duration %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-3 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-primary">Filter</button>
+      <a href="{{ url_for('tours') }}" class="btn btn-outline-secondary">Clear</a>
+    </div>
   </form>
 
   <div class="row g-4">
@@ -39,6 +58,7 @@
             <span class="badge bg-secondary mb-2">{{ tour.payment }}</span>
           {% endif %}
           <h2 class="h5">{{ tour.title }}</h2>
+          <p class="text-muted small mb-1">by {{ tour.guide_name or "SilkStep" }}</p>
           <p class="text-muted small"><strong>Languages:</strong> {{ tour.languages or "Not set" }}</p>
           <p>{{ tour.summary }}</p>
           <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">View tour</a>
@@ -55,7 +75,7 @@
             {% if tour.booking_count > 0 and current_user.role == 'guide' %}
               <span class="text-muted small d-block mt-1">has bookings (locked for guides)</span>
             {% elif tour.booking_count > 0 and current_user.role == 'admin' %}
-              <span class="text-muted small d-block mt-1">{{ tour.booking_count }} booking(s) — admin can still edit</span>
+              <span class="text-muted small d-block mt-1">{{ tour.booking_count }} booking(s) - admin can still edit</span>
             {% endif %}
           {% endif %}
         </div>
