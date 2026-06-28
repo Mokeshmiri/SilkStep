@@ -1,11 +1,15 @@
+import os
 import sqlite3
+
+# absolute path to the db so it works no matter the working directory (e.g. on pythonanywhere)
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
 
 # tours + tour_languages tables
 
 
 def get_tours():
     # home + tours page, includes language list and booking count
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         """
@@ -27,7 +31,7 @@ def get_tours_by_language(language):
     # filter dropdown on /tours
     if not language:
         return get_tours()
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         """
@@ -48,7 +52,7 @@ def get_tours_by_language(language):
 
 
 def get_tour_by_id(tour_id):
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     row = conn.execute("SELECT * FROM tours WHERE id = ?", (tour_id,)).fetchone()
     conn.close()
@@ -59,7 +63,7 @@ def create_tour(title, schedule, duration, payment, summary, photo_url,
                 meeting_point, meeting_map_link, max_participants, guide_id,
                 duration_minutes=None):
     # returns new tour id; schedule/duration are display text, duration_minutes is structured
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(
         """
@@ -82,7 +86,7 @@ def create_tour(title, schedule, duration, payment, summary, photo_url,
 def update_tour(tour_id, title, schedule, duration, payment, summary, photo_url,
                 meeting_point, meeting_map_link, max_participants,
                 duration_minutes=None):
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute(
         """
         UPDATE tours
@@ -100,7 +104,7 @@ def update_tour(tour_id, title, schedule, duration, payment, summary, photo_url,
 
 def delete_tour(tour_id):
     # remove linked languages, photos, bookings first
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tour_languages WHERE tour_id = ?", (tour_id,))
     cursor.execute("DELETE FROM tour_photos WHERE tour_id = ?", (tour_id,))
@@ -114,7 +118,7 @@ def delete_tour(tour_id):
 
 
 def get_languages_for_tour(tour_id):
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     rows = conn.execute(
         "SELECT language FROM tour_languages WHERE tour_id = ? ORDER BY language",
         (tour_id,),
@@ -125,7 +129,7 @@ def get_languages_for_tour(tour_id):
 
 def set_tour_languages(tour_id, languages):
     # wipe old ones and save new checkboxes from form
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tour_languages WHERE tour_id = ?", (tour_id,))
     for lang in languages:
@@ -139,7 +143,7 @@ def set_tour_languages(tour_id, languages):
 
 
 def count_tours():
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     count = conn.execute("SELECT COUNT(*) FROM tours").fetchone()[0]
     conn.close()
     return count

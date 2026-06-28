@@ -1,4 +1,8 @@
+import os
 import sqlite3
+
+# absolute path to the db so it works no matter the working directory (e.g. on pythonanywhere)
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
 
 # tour stops - at least 4 per tour (exam requirement)
 MIN_STOPS_PER_TOUR = 4
@@ -7,7 +11,7 @@ MAX_STOPS_PER_TOUR = 15
 
 def get_stops_for_tour(tour_id):
     # list stops in order for tour detail page
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         """
@@ -23,7 +27,7 @@ def get_stops_for_tour(tour_id):
 
 
 def count_stops_for_tour(tour_id):
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     count = conn.execute(
         "SELECT COUNT(*) FROM tour_stops WHERE tour_id = ?",
         (tour_id,),
@@ -35,7 +39,7 @@ def count_stops_for_tour(tour_id):
 def set_tour_stops(tour_id, stops):
     # stops = list of {"name": "...", "description": "..."}
     # wipe old stops and insert new ones from the form
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tour_stops WHERE tour_id = ?", (tour_id,))
     for i, stop in enumerate(stops, start=1):

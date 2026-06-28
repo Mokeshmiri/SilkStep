@@ -1,4 +1,8 @@
+import os
 import sqlite3
+
+# absolute path to the db so it works no matter the working directory (e.g. on pythonanywhere)
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
 
 # tour photos table - up to 5 per tour (exam requirement)
 MAX_PHOTOS_PER_TOUR = 5
@@ -6,7 +10,7 @@ MAX_PHOTOS_PER_TOUR = 5
 
 def get_photos_for_tour(tour_id):
     # gallery on tour detail + edit page
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
         "SELECT id, tour_id, photo_path, sort_order FROM tour_photos WHERE tour_id = ? ORDER BY sort_order, id",
@@ -18,7 +22,7 @@ def get_photos_for_tour(tour_id):
 
 def count_photos_for_tour(tour_id):
     # check before upload so we dont go over 5
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     count = conn.execute("SELECT COUNT(*) FROM tour_photos WHERE tour_id = ?", (tour_id,)).fetchone()[0]
     conn.close()
     return count
@@ -27,7 +31,7 @@ def count_photos_for_tour(tour_id):
 def add_photo(tour_id, photo_path):
     # save db row after file lands in static/uploads
     sort_order = count_photos_for_tour(tour_id) + 1
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO tour_photos (tour_id, photo_path, sort_order) VALUES (?, ?, ?)",
@@ -42,7 +46,7 @@ def add_photo(tour_id, photo_path):
 
 def get_photo_by_id(photo_id):
     # delete photo route
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     row = conn.execute("SELECT * FROM tour_photos WHERE id = ?", (photo_id,)).fetchone()
     conn.close()
@@ -51,7 +55,7 @@ def get_photo_by_id(photo_id):
 
 def delete_photo(photo_id):
     # row only - app.py also deletes the file on disk
-    conn = sqlite3.connect("silkstep.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.execute("DELETE FROM tour_photos WHERE id = ?", (photo_id,))
     conn.commit()
     conn.close()
