@@ -14,17 +14,19 @@ h1 {
 }
 
 .lead {
-    color: #495057;
+    color: #fff;
     margin-bottom: 0.3px;
 }
 
 .hero {
-    background:
-        radial-gradient(circle at 20% 20%, rgba(180, 120, 60, 0.35), transparent 45%),
-        linear-gradient(135deg, #1f2a37, #4b2e19);
-    border-bottom: 4px solid #c89b6a;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  background:
+      linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)),
+      url("../images/bg.jpg") center / cover no-repeat;
+  border-bottom: 4px solid #c89b6a;
 }
-
 .hero-badge {
     display: inline-block;
     margin-bottom: 0.75rem;
