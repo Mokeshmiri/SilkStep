@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-# absolute path to the db so it works no matter the working directory (e.g. on pythonanywhere)
+# db path - works on pythonanywhere too
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
 
 # user table queries

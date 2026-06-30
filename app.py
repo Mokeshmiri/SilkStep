@@ -12,7 +12,7 @@ import tour_schedule_dao
 import tour_reports_dao
 from user_model import User
 
-# small reusable helpers live in helpers.py to keep this file shorter
+# helpers in helpers.py
 from helpers import (
     AVAILABLE_LANGUAGES, WEEKDAYS, DURATION_BUCKETS,
     allowed_photo, save_image, save_tour_photo, remove_photo_file,
@@ -26,7 +26,7 @@ from helpers import (
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret_key"
 
-# flask-login setup - loads user from db on each request
+# flask login setup - loads user from db on each request
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
@@ -34,7 +34,7 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    # reload user from db when flask-login reads the session cookie
+    # reload user from db when flask login reads the session cookie
     row = users_dao.get_user_by_id(int(user_id))
     return User(row) if row else None
 
@@ -43,7 +43,6 @@ def load_user(user_id):
 
 @app.route("/")
 def home():
-    # landing page with featured tour cards
     tours = [tour_dict(row) for row in tours_dao.get_tours()]
     return render_template("home.html", tours=tours)
 
@@ -63,7 +62,7 @@ def tours():
         rows = tours_dao.get_tours()
     tour_list = [tour_dict(row) for row in rows]
 
-    # date filter - keep tours that run on the weekday of the chosen date
+# filter by weekday of chosen date
     if selected_date:
         try:
             weekday = datetime.strptime(selected_date, "%Y-%m-%d").weekday()
@@ -72,7 +71,7 @@ def tours():
         except ValueError:
             selected_date = ""
 
-    # duration filter - match the chosen length bucket against duration_minutes
+# filter by duration
     bucket = next((b for b in DURATION_BUCKETS if b[0] == selected_duration), None)
     if bucket:
         _key, _label, low, high = bucket
@@ -109,7 +108,7 @@ def tour_detail(tour_id):
     photos = [dict(p) for p in tour_photos_dao.get_photos_for_tour(tour_id)]
     stops = [dict(s) for s in tour_stops_dao.get_stops_for_tour(tour_id)]
     tour_data["photo_src"] = tour_photo_src(photos[0]["photo_path"] if photos else tour_data.get("photo_url"))
-    # weekly schedule with readable day names for display + a weekday list for the date picker
+    # schedule for display + date picker
     day_names = dict(WEEKDAYS)
     schedule_rows = tour_schedule_dao.get_schedule_for_tour(tour_id)
     schedule = [
@@ -131,7 +130,6 @@ def tour_detail(tour_id):
 
 @app.route("/contact")
 def contact():
-    # static contact info page
     return render_template("contact.html")
 
 
@@ -139,13 +137,12 @@ def contact():
 
 @app.route("/signup")
 def signup():
-    # show register form
     return render_template("register.html", available_languages=AVAILABLE_LANGUAGES, form={})
 
 
 @app.route("/register", methods=["POST"])
 def register():
-    # user picks guide or participant; guides also choose the languages they speak
+    # user picks guide or participant, guides can choose the languages they speak
     name = request.form.get("txt_name", "").strip()
     surname = request.form.get("txt_surname", "").strip()
     email = request.form.get("txt_email", "").strip()
@@ -156,7 +153,7 @@ def register():
     languages = filter_languages(request.form.getlist("txt_languages"))
 
     def back(error):
-        # re-show the form with an error and keep what was typed
+        # re-show the form with an error and keep the typed data
         return render_template(
             "register.html",
             form_error=error,
@@ -180,13 +177,11 @@ def register():
 
 @app.route("/login")
 def login():
-    # show login form
     return render_template("login.html")
 
 
 @app.route("/do_login", methods=["POST"])
 def do_login():
-    # check email/password then start flask-login session
     user = users_dao.get_user_by_email(request.form.get("txt_email"))
     if not user or user["password"] != request.form.get("txt_password"):
         return render_template("login.html", error="Invalid email or password")
@@ -196,7 +191,6 @@ def do_login():
 
 @app.route("/logout")
 def logout():
-    # end session
     logout_user()
     return redirect(url_for("home"))
 
@@ -263,7 +257,6 @@ def profile():
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 def edit_profile():
-    # name + surname for everyone; guides can also update the languages they speak
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
     is_guide = current_user.role == "guide"
@@ -303,7 +296,6 @@ def edit_profile():
 
 @app.route("/dashboard")
 def dashboard():
-    # send each role to the right page
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
     if current_user.role == "participant":
@@ -318,7 +310,7 @@ def dashboard():
 # --- guide: create / edit / delete tours ---
 
 def render_new_tour(form_error=""):
-    # re-render create form keeping whatever the guide already typed
+# keep form values on error
     return render_template(
         "new_tour.html",
         available_languages=tour_language_options(current_user.id),
@@ -334,7 +326,6 @@ def render_new_tour(form_error=""):
 
 @app.route("/guide/new-tour", methods=["GET", "POST"])
 def new_tour():
-    # guide creates a tour with photos, languages, weekly schedule and stops
     if not current_user.is_authenticated or current_user.role != "guide":
         return redirect(url_for("home"))
     if request.method == "POST":
@@ -430,7 +421,6 @@ def edit_tour(tour_id):
 
 @app.route("/guide/delete-tour/<int:tour_id>", methods=["POST"])
 def delete_tour_route(tour_id):
-    # remove tour, photos on disk, and related db rows
     tour = can_manage_tour(tour_id)
     if not tour:
         return redirect(url_for("tours"))
@@ -445,7 +435,6 @@ def delete_tour_route(tour_id):
 
 @app.route("/guide/tour-photo/<int:photo_id>/delete", methods=["POST"])
 def delete_tour_photo(photo_id):
-    # delete one gallery image from edit page
     if not current_user.is_authenticated or current_user.role not in ("guide", "admin"):
         return redirect(url_for("home"))
     photo = tour_photos_dao.get_photo_by_id(photo_id)
@@ -643,7 +632,7 @@ def tour_availability(tour_id):
 
 @app.route("/admin")
 def admin_dashboard():
-    # simple monitoring page: counts + who is on the site + every booking
+    # admin page stats
     if not current_user.is_authenticated or current_user.role != "admin":
         return redirect(url_for("home"))
     guides = [dict(u) for u in users_dao.get_users_by_role("guide")]

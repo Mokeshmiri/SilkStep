@@ -9,7 +9,6 @@
     <div class="alert alert-danger">{{ form_error }}</div>
   {% endif %}
 
-  {# guide tour form - multipart for photos #}
   <form method="POST" action="{{ url_for('new_tour') }}" enctype="multipart/form-data">
     <div class="mb-3">
       <label class="form-label">Title</label>

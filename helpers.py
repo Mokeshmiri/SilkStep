@@ -13,8 +13,7 @@ import users_dao
 import tour_stops_dao
 import tour_schedule_dao
 
-# small helpers used by the routes in app.py, kept here so app.py stays shorter
-
+# shared helpers for routes
 AVAILABLE_LANGUAGES = ["Italian", "English", "Spanish", "Portuguese", "German"]
 ALLOWED_PHOTO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 

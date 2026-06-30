@@ -79,7 +79,7 @@ you can register as a **participant** or a **guide** (guides also pick the langu
 
 ## extra features (beyond minimum)
 
-stuff on the site that makes it feel more like a real product, not just the bare exam checklist:
+extra stuff i added on top of the exam minimum:
 
 **homepage highlights** (three boxes under the hero banner):
 

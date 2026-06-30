@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}SilkStep | Free Walking Tours in Tehran{% endblock %}
 {% block content %}
-  {# hero banner #}
   <header class="hero text-center text-white">
     <div class="container py-5">
       <span class="hero-badge">Tehran · free walking tours</span>
@@ -12,7 +11,6 @@
     </div>
   </header>
 
-  {# three selling points - short titles with a small icon #}
   <section class="container py-5">
     <div class="row g-3 text-center">
       <div class="col-md-4">
@@ -41,7 +39,7 @@
 
   <section id="tours" class="container pb-5">
     <h2 class="mb-4">Popular tours in Tehran</h2>
-    {# tour cards from db #}
+
     <div class="row g-4">
 
       {% for tour in tours %}
@@ -68,9 +66,8 @@
     <div class="container">
       <h2 class="mb-3">Why SilkStep?</h2>
       <p class="mb-0">
-        SilkStep connects travelers with local guides through themed walking routes in Tehran.
-        Like platforms such as FREETOUR and Persian Walk, we focus on authentic city stories -
-        but our project is built as a Flask web app with booking and guide management for the course exam.
+        I built SilkStep for the web apps exam. Similar idea to FREETOUR or Persian Walk,
+        but here guides post tours and people book a date in Flask.
       </p>
     </div>
   </section>
