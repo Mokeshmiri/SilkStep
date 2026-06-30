@@ -1,7 +1,7 @@
 # silkstep
 
-course: 01VRP intro web apps (2025/2026)  
-student: mo mokashmiri - s308968
+course: Introduction to Web Applications (2025/2026)  
+student: Mohammad Keshmiri - s308968
 
 free walking tours in tehran. tagline: *every step tells a story.*
 
@@ -92,6 +92,7 @@ stuff on the site that makes it feel more like a real product, not just the bare
 **ui polish**
 
 - hero banner with gradient + tagline (*every step tells a story*)
+- hero background image on the home page (`static/images/bg.jpg`)
 - square tour cards (`aspect-ratio 1:1`) so the grid looks even
 - photo gallery modal with prev/next arrows + keyboard (left/right keys)
 - live spots-left on booking form (calls `/tour/<id>/availability` when you pick a date)
@@ -138,6 +139,7 @@ helpers.py          small helper functions (photos, schedule, parsing) - keeps a
 user_model.py       user class for flask-login
 templates/          html pages
 static/css/         custom styles
+static/images/      home page background (bg.jpg)
 static/uploads/     tour photos
 schema.sql          full db structure (reference)
 seed.sql            sample accounts
