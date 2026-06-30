@@ -85,7 +85,7 @@ def sync_tour_cover_photo(tour_id):
         return
     tours_dao.update_tour(
         tour_id,
-        tour["title"], tour["schedule"], tour["duration"], tour["payment"], tour["summary"],
+        tour["title"], tour["schedule"], tour["duration"], tour["summary"],
         cover, tour["meeting_point"] or "", tour["meeting_map_link"] or "", tour["max_participants"] or 15,
         tour["duration_minutes"],
     )
@@ -137,7 +137,6 @@ def edit_tour_context(tour_id, tour_row, use_form=False):
     if use_form:
         tour_data.update({
             "title": request.form.get("txt_title", tour_data.get("title", "")),
-            "payment": request.form.get("txt_payment", tour_data.get("payment", "")),
             "summary": request.form.get("txt_summary", tour_data.get("summary", "")),
             "meeting_point": request.form.get("txt_meeting_point", tour_data.get("meeting_point", "")),
             "meeting_map_link": request.form.get("txt_meeting_map_link", tour_data.get("meeting_map_link", "")),
@@ -175,7 +174,6 @@ def new_tour_form_data():
     # keep form values when validation fails on create tour
     return {
         "title": request.form.get("txt_title", ""),
-        "payment": request.form.get("txt_payment", "Free Tour"),
         "summary": request.form.get("txt_summary", ""),
         "meeting_point": request.form.get("txt_meeting_point", ""),
         "meeting_map_link": request.form.get("txt_meeting_map_link", ""),

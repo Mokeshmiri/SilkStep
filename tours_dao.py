@@ -59,7 +59,7 @@ def get_tour_by_id(tour_id):
     return row
 
 
-def create_tour(title, schedule, duration, payment, summary, photo_url,
+def create_tour(title, schedule, duration, summary, photo_url,
                 meeting_point, meeting_map_link, max_participants, guide_id,
                 duration_minutes=None):
     # returns new tour id; schedule/duration are display text, duration_minutes is structured
@@ -67,12 +67,12 @@ def create_tour(title, schedule, duration, payment, summary, photo_url,
     cursor = conn.cursor()
     cursor.execute(
         """
-        INSERT INTO tours (title, schedule, duration, payment, summary, photo_url,
+        INSERT INTO tours (title, schedule, duration, summary, photo_url,
                            meeting_point, meeting_map_link, max_participants, guide_id,
                            duration_minutes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (title, schedule, duration, payment, summary, photo_url,
+        (title, schedule, duration, summary, photo_url,
          meeting_point, meeting_map_link, max_participants, guide_id,
          duration_minutes),
     )
@@ -83,19 +83,19 @@ def create_tour(title, schedule, duration, payment, summary, photo_url,
     return tour_id
 
 
-def update_tour(tour_id, title, schedule, duration, payment, summary, photo_url,
+def update_tour(tour_id, title, schedule, duration, summary, photo_url,
                 meeting_point, meeting_map_link, max_participants,
                 duration_minutes=None):
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
         """
         UPDATE tours
-        SET title = ?, schedule = ?, duration = ?, payment = ?, summary = ?,
+        SET title = ?, schedule = ?, duration = ?, summary = ?,
             photo_url = ?, meeting_point = ?, meeting_map_link = ?, max_participants = ?,
             duration_minutes = ?
         WHERE id = ?
         """,
-        (title, schedule, duration, payment, summary, photo_url,
+        (title, schedule, duration, summary, photo_url,
          meeting_point, meeting_map_link, max_participants, duration_minutes, tour_id),
     )
     conn.commit()

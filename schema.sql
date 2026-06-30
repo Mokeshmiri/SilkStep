@@ -20,7 +20,6 @@ CREATE TABLE tours (
     title TEXT NOT NULL,
     schedule TEXT NOT NULL,
     duration TEXT NOT NULL,
-    payment TEXT NOT NULL,
     summary TEXT NOT NULL,
     guide_id INTEGER,
     meeting_point TEXT,
