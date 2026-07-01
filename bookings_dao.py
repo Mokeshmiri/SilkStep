@@ -171,3 +171,19 @@ def get_booked_spots(tour_id, tour_date):
     ).fetchone()[0]
     conn.close()
     return booked
+    
+def get_participant_bookings_on_date(participant_id, tour_date):
+    # all confirmed bookings for this participant on a specific date
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute(
+        """
+        SELECT b.tour_id, t.duration_minutes
+        FROM bookings b
+        JOIN tours t ON t.id = b.tour_id
+        WHERE b.participant_id = ? AND b.tour_date = ? AND b.status = 'confirmed'
+        """,
+        (participant_id, tour_date),
+    ).fetchall()
+    conn.close()
+    return rows

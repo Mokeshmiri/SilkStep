@@ -65,6 +65,15 @@ def remove_photo_file(photo_path):
         os.remove(file_path)
 
 
+def cleanup_tour_photo_files(tour_id):
+    # remove gallery + cover image files from disk before deleting a tour row
+    for photo in tour_photos_dao.get_photos_for_tour(tour_id):
+        remove_photo_file(photo["photo_path"])
+    tour = tours_dao.get_tour_by_id(tour_id)
+    if tour:
+        remove_photo_file(dict(tour).get("photo_url"))
+
+
 def save_uploaded_photos(tour_id, files):
     # loop file input - stops at 5 photos per tour
     for file in files:

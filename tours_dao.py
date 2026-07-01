@@ -147,3 +147,13 @@ def count_tours():
     count = conn.execute("SELECT COUNT(*) FROM tours").fetchone()[0]
     conn.close()
     return count
+
+def get_tours_by_guide(guide_id):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute(
+        "SELECT * FROM tours WHERE guide_id = ? ORDER BY id DESC",
+        (guide_id,),
+    ).fetchall()
+    conn.close()
+    return rows

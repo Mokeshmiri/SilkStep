@@ -44,26 +44,30 @@
   {# photo gallery - click opens modal #}
   {% if photos %}
     <h2 class="h6">Tour photos <span class="text-muted small">(click to enlarge)</span></h2>
-    <div class="row g-2 mb-3">
+    <div class="row g-2 mb-3 photo-gallery">
       {% for p in photos %}
       <div class="col-6 col-md-4">
-        <img src="{{ url_for('static', filename=p.photo_path) }}"
-             class="img-fluid rounded photo-thumb"
-             alt="{{ tour.title }}"
-             data-bs-toggle="modal"
-             data-bs-target="#photoModal"
-             data-full-src="{{ url_for('static', filename=p.photo_path) }}">
+        <div class="photo-thumb-wrap rounded">
+          <img src="{{ url_for('static', filename=p.photo_path) }}"
+               class="photo-thumb"
+               alt="{{ tour.title }}"
+               data-bs-toggle="modal"
+               data-bs-target="#photoModal"
+               data-full-src="{{ url_for('static', filename=p.photo_path) }}">
+        </div>
       </div>
       {% endfor %}
     </div>
   {% elif tour.photo_src %}
-    <div class="mb-3">
-      <img src="{{ tour.photo_src }}"
-           alt="{{ tour.title }}"
-           class="img-fluid rounded photo-thumb"
-           data-bs-toggle="modal"
-           data-bs-target="#photoModal"
-           data-full-src="{{ tour.photo_src }}">
+    <div class="mb-3 photo-gallery">
+      <div class="photo-thumb-wrap rounded" style="max-width: 280px;">
+        <img src="{{ tour.photo_src }}"
+             alt="{{ tour.title }}"
+             class="photo-thumb"
+             data-bs-toggle="modal"
+             data-bs-target="#photoModal"
+             data-full-src="{{ tour.photo_src }}">
+      </div>
     </div>
   {% else %}
     <p class="text-muted small">no photos for this tour yet</p>

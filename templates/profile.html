@@ -17,10 +17,21 @@
   </ul>
 
   {% if user.role == 'guide' %}
-    <div class="mt-3">
-      <a href="{{ url_for('guide_bookings') }}" class="btn btn-outline-dark btn-sm">My tours &amp; reservations</a>
+  <div class="mt-3">
+    <a href="{{ url_for('guide_bookings') }}" class="btn btn-outline-dark btn-sm">My tours &amp; reservations</a>
+  </div>
+  {% if my_tours %}
+    <h2 class="h5 mt-4 mb-3">My tours</h2>
+    <div class="list-group mb-3">
+      {% for t in my_tours %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{{ url_for('tour_detail', tour_id=t.id) }}">{{ t.title }}</a>
+          <a href="{{ url_for('edit_tour', tour_id=t.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+        </div>
+      {% endfor %}
     </div>
   {% endif %}
+{% endif %}
   <div class="mt-3">
     <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary btn-sm me-2">Edit profile</a>
     <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary btn-sm">Change password</a>

@@ -5,6 +5,17 @@
 <section class="container py-5">
   <h1 class="mb-4">My tours &amp; reservations</h1>
   <a href="{{ url_for('new_tour') }}" class="btn btn-primary btn-sm mb-3">Create new tour</a>
+  {% if my_tours %}
+    <h2 class="h5 mt-4 mb-3">All my tours</h2>
+    <div class="list-group mb-4">
+      {% for t in my_tours %}
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('tour_detail', tour_id=t.id) }}">{{ t.title }}</a>
+        <a href="{{ url_for('edit_tour', tour_id=t.id) }}" class="btn btn-outline-secondary btn-sm">Edit</a>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 
   {% if page_error %}
     <div class="alert alert-warning">{{ page_error }}</div>

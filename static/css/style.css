@@ -85,13 +85,24 @@ h1 {
     object-fit: cover;
   }
   
-  .photo-thumb {
-    cursor: pointer;
-    transition: opacity 0.2s ease;
+  .photo-thumb-wrap {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #e9ecef;
   }
-  
-  .photo-thumb:hover {
-    opacity: 0.85;
+
+  .photo-thumb-wrap .photo-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .photo-thumb-wrap .photo-thumb:hover {
+    opacity: 0.9;
+    transform: scale(1.03);
   }
   
 .photo-frame {

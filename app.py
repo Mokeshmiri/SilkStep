@@ -15,7 +15,7 @@ from user_model import User
 # helpers in helpers.py
 from helpers import (
     AVAILABLE_LANGUAGES, WEEKDAYS, DURATION_BUCKETS,
-    allowed_photo, save_image, save_tour_photo, remove_photo_file,
+    allowed_photo, save_image, save_tour_photo, remove_photo_file, cleanup_tour_photo_files,
     save_uploaded_photos, sync_tour_cover_photo, tour_photo_src, tour_dict,
     can_manage_tour, parse_max_participants, edit_tour_context, new_tour_form_data,
     filter_languages, tour_language_options, booking_start_datetime,
@@ -253,7 +253,8 @@ def profile():
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
     languages = users_dao.get_user_languages(current_user.id) if current_user.role == "guide" else []
-    return render_template("profile.html", user=current_user, languages=languages)
+    my_tours = [dict(t) for t in tours_dao.get_tours_by_guide(current_user.id)] if current_user.role == "guide" else []
+    return render_template("profile.html", user=current_user, languages=languages, my_tours=my_tours)
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 def edit_profile():
@@ -357,6 +358,10 @@ def new_tour():
         )
         save_uploaded_photos(tour_id, request.files.getlist("txt_photos"))
         sync_tour_cover_photo(tour_id)
+        if len(tour_photos_dao.get_photos_for_tour(tour_id)) != 5:
+            cleanup_tour_photo_files(tour_id)
+            tours_dao.delete_tour(tour_id)
+            return render_new_tour("Please upload exactly 5 promotional photos.")
         tours_dao.set_tour_languages(tour_id, selected_languages)
         tour_schedule_dao.set_tour_schedule(tour_id, schedule)
         tour_stops_dao.set_tour_stops(tour_id, stops)
@@ -426,9 +431,7 @@ def delete_tour_route(tour_id):
         return redirect(url_for("tours"))
     if current_user.role != "admin" and bookings_dao.tour_has_bookings(tour_id):
         return redirect(url_for("tours", error="This tour already has bookings and cannot be deleted."))
-    for photo in tour_photos_dao.get_photos_for_tour(tour_id):
-        remove_photo_file(photo["photo_path"])
-    remove_photo_file(dict(tour).get("photo_url"))
+    cleanup_tour_photo_files(tour_id)
     tours_dao.delete_tour(tour_id)
     return redirect(url_for("tours"))
 
@@ -482,13 +485,13 @@ def guide_bookings():
         if group["is_past"]:
             report = tour_reports_dao.get_report(group["tour_id"], group["tour_date"])
             group["report"] = dict(report) if report else None
-
+    my_tours = [dict(t) for t in tours_dao.get_tours_by_guide(current_user.id)]
     return render_template(
         "guide_bookings.html",
         groups=group_list,
+        my_tours=my_tours,
         page_error=request.args.get("error", ""),
     )
-
 
 @app.route("/guide/report", methods=["POST"])
 def submit_report():
@@ -552,6 +555,23 @@ def book_tour(tour_id):
     remaining = max_participants - bookings_dao.get_booked_spots(tour_id, tour_date)
     if party_size > remaining:
         return redirect(url_for("tour_detail", tour_id=tour_id, booking_error=f"Only {remaining} spot(s) left on that date."))
+
+    # check for overlapping bookings on the same date
+    new_start_str = tour_schedule_dao.get_start_time(tour_id, booking_day.weekday())
+    new_start_dt = datetime.strptime(f"{tour_date} {new_start_str}", "%Y-%m-%d %H:%M")
+    new_end_dt = new_start_dt + timedelta(minutes=tour["duration_minutes"] or 0)
+    existing = bookings_dao.get_participant_bookings_on_date(current_user.id, tour_date)
+    for ex in existing:
+        ex_start_str = tour_schedule_dao.get_start_time(ex["tour_id"], booking_day.weekday())
+        if ex_start_str:
+            ex_start_dt = datetime.strptime(f"{tour_date} {ex_start_str}", "%Y-%m-%d %H:%M")
+            ex_end_dt = ex_start_dt + timedelta(minutes=ex["duration_minutes"] or 0)
+            if new_start_dt < ex_end_dt and ex_start_dt < new_end_dt:
+                return redirect(url_for(
+                    "tour_detail", tour_id=tour_id,
+                    booking_error="This tour overlaps with another booking you have on the same date.",
+                ))
+
     guests = parse_booking_guests(party_size)
     if guests is None:
         return redirect(url_for(
