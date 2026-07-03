@@ -22,7 +22,6 @@
   {% endif %}
 
   {% if groups %}
-    {# reservations grouped by tour + date, with the total expected people #}
     {% for group in groups %}
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -59,7 +58,6 @@
           {% endfor %}
         </ul>
 
-        {# post-tour report: only for dates that already happened #}
         {% if group.is_past %}
           <div class="card-body border-top">
             {% if group.report %}

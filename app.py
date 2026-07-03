@@ -12,7 +12,6 @@ import tour_schedule_dao
 import tour_reports_dao
 from user_model import User
 
-# helpers in helpers.py
 from helpers import (
     AVAILABLE_LANGUAGES, WEEKDAYS, DURATION_BUCKETS,
     allowed_photo, save_image, save_tour_photo, remove_photo_file, cleanup_tour_photo_files,
@@ -26,7 +25,6 @@ from helpers import (
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret_key"
 
-# flask login setup - loads user from db on each request
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
@@ -34,12 +32,9 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    # reload user from db when flask login reads the session cookie
     row = users_dao.get_user_by_id(int(user_id))
     return User(row) if row else None
 
-
-# --- public pages ---
 
 @app.route("/")
 def home():
@@ -49,7 +44,6 @@ def home():
 
 @app.route("/tours")
 def tours():
-    # full tour list with optional language / date / duration filters
     selected_language = request.args.get("language", "")
     selected_date = request.args.get("date", "")
     selected_duration = request.args.get("duration", "")
@@ -62,7 +56,7 @@ def tours():
         rows = tours_dao.get_tours()
     tour_list = [tour_dict(row) for row in rows]
 
-# filter by weekday of chosen date
+    # filter by weekday when a date is picked
     if selected_date:
         try:
             weekday = datetime.strptime(selected_date, "%Y-%m-%d").weekday()
@@ -71,7 +65,6 @@ def tours():
         except ValueError:
             selected_date = ""
 
-# filter by duration
     bucket = next((b for b in DURATION_BUCKETS if b[0] == selected_duration), None)
     if bucket:
         _key, _label, low, high = bucket
@@ -96,7 +89,6 @@ def tours():
 
 @app.route("/tour/<int:tour_id>")
 def tour_detail(tour_id):
-    # single tour page - photos, details, booking form
     tour = tours_dao.get_tour_by_id(tour_id)
     if not tour:
         return "Tour not found", 404
@@ -108,7 +100,6 @@ def tour_detail(tour_id):
     photos = [dict(p) for p in tour_photos_dao.get_photos_for_tour(tour_id)]
     stops = [dict(s) for s in tour_stops_dao.get_stops_for_tour(tour_id)]
     tour_data["photo_src"] = tour_photo_src(photos[0]["photo_path"] if photos else tour_data.get("photo_url"))
-    # schedule for display + date picker
     day_names = dict(WEEKDAYS)
     schedule_rows = tour_schedule_dao.get_schedule_for_tour(tour_id)
     schedule = [
@@ -133,8 +124,6 @@ def contact():
     return render_template("contact.html")
 
 
-# --- auth ---
-
 @app.route("/signup")
 def signup():
     return render_template("register.html", available_languages=AVAILABLE_LANGUAGES, form={})
@@ -142,7 +131,6 @@ def signup():
 
 @app.route("/register", methods=["POST"])
 def register():
-    # user picks guide or participant, guides can choose the languages they speak
     name = request.form.get("txt_name", "").strip()
     surname = request.form.get("txt_surname", "").strip()
     email = request.form.get("txt_email", "").strip()
@@ -153,7 +141,6 @@ def register():
     languages = filter_languages(request.form.getlist("txt_languages"))
 
     def back(error):
-        # re-show the form with an error and keep the typed data
         return render_template(
             "register.html",
             form_error=error,
@@ -197,7 +184,7 @@ def logout():
 
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-    # preview only - no real email sent; checks email exists in db
+    # fake reset - no email sent, just checks the account exists
     if request.method == "POST":
         email = request.form.get("txt_email", "").strip()
         if not email:
@@ -249,7 +236,6 @@ def change_password():
 
 @app.route("/profile")
 def profile():
-    # logged-in user info (guides also see their spoken languages)
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
     languages = users_dao.get_user_languages(current_user.id) if current_user.role == "guide" else []
@@ -308,10 +294,7 @@ def dashboard():
     return redirect(url_for("home"))
 
 
-# --- guide: create / edit / delete tours ---
-
 def render_new_tour(form_error=""):
-# keep form values on error
     return render_template(
         "new_tour.html",
         available_languages=tour_language_options(current_user.id),
@@ -371,11 +354,10 @@ def new_tour():
 
 @app.route("/guide/edit-tour/<int:tour_id>", methods=["GET", "POST"])
 def edit_tour(tour_id):
-    # update tour - locked for guides once someone booked
     tour = can_manage_tour(tour_id)
     if not tour:
         return redirect(url_for("tours"))
-    # guides locked after first booking - admin can still edit
+    # cant edit after first booking (admin still can)
     if current_user.role != "admin" and bookings_dao.tour_has_bookings(tour_id):
         return redirect(url_for("tours", error="This tour already has bookings and cannot be edited."))
     if request.method == "POST":
@@ -456,7 +438,6 @@ def delete_tour_photo(photo_id):
 
 @app.route("/guide/bookings")
 def guide_bookings():
-    # guide sees reservations grouped by tour + date, with totals and post-tour reports
     if not current_user.is_authenticated or current_user.role != "guide":
         return redirect(url_for("home"))
     now = datetime.now()
@@ -495,7 +476,6 @@ def guide_bookings():
 
 @app.route("/guide/report", methods=["POST"])
 def submit_report():
-    # guide declares how many really attended + uploads one evidence photo (past dates only)
     if not current_user.is_authenticated or current_user.role != "guide":
         return redirect(url_for("home"))
     try:
@@ -520,11 +500,8 @@ def submit_report():
     return redirect(url_for("guide_bookings"))
 
 
-# --- participant bookings ---
-
 @app.route("/tour/<int:tour_id>/book", methods=["POST"])
 def book_tour(tour_id):
-    # participant books a date - checks capacity first
     if not current_user.is_authenticated or current_user.role != "participant":
         return redirect(url_for("tour_detail", tour_id=tour_id))
     tour_date = request.form.get("txt_tour_date")
@@ -539,7 +516,6 @@ def book_tour(tour_id):
     tour = tours_dao.get_tour_by_id(tour_id)
     if not tour:
         return "Tour not found", 404
-    # date must be valid, not in the past, and a day this tour actually runs
     try:
         booking_day = datetime.strptime(tour_date, "%Y-%m-%d").date()
     except ValueError:
@@ -556,7 +532,7 @@ def book_tour(tour_id):
     if party_size > remaining:
         return redirect(url_for("tour_detail", tour_id=tour_id, booking_error=f"Only {remaining} spot(s) left on that date."))
 
-    # check for overlapping bookings on the same date
+    # no overlapping tours on the same day
     new_start_str = tour_schedule_dao.get_start_time(tour_id, booking_day.weekday())
     new_start_dt = datetime.strptime(f"{tour_date} {new_start_str}", "%Y-%m-%d %H:%M")
     new_end_dt = new_start_dt + timedelta(minutes=tour["duration_minutes"] or 0)
@@ -596,7 +572,6 @@ def book_tour(tour_id):
 
 @app.route("/my-bookings")
 def my_bookings():
-    # participant's own booking list, with start time + meeting point + cancel window
     if not current_user.is_authenticated or current_user.role != "participant":
         return redirect(url_for("home"))
     now = datetime.now()
@@ -607,7 +582,6 @@ def my_bookings():
         ]
         start_dt = booking_start_datetime(booking["tour_id"], booking["tour_date"])
         booking["start_time"] = start_dt.strftime("%H:%M") if start_dt else ""
-        # can still cancel only if the start is more than 24h away
         booking["can_cancel"] = bool(start_dt and start_dt - now >= timedelta(hours=24))
     return render_template(
         "my_bookings.html",
@@ -618,7 +592,6 @@ def my_bookings():
 
 @app.route("/booking/<int:booking_id>/cancel", methods=["POST"])
 def cancel_booking(booking_id):
-    # participant cancels their own booking, but only up to 24h before the start time
     if not current_user.is_authenticated or current_user.role != "participant":
         return redirect(url_for("home"))
     booking = bookings_dao.get_booking_by_id(booking_id)
@@ -636,7 +609,6 @@ def cancel_booking(booking_id):
 
 @app.route("/tour/<int:tour_id>/availability")
 def tour_availability(tour_id):
-    # json for the booking form - spots left on a date
     tour = tours_dao.get_tour_by_id(tour_id)
     if not tour:
         return {"error": "Tour not found"}, 404
@@ -648,11 +620,8 @@ def tour_availability(tour_id):
     return {"max": max_participants, "booked": booked, "remaining": max(0, max_participants - booked)}
 
 
-# --- admin ---
-
 @app.route("/admin")
 def admin_dashboard():
-    # admin page stats
     if not current_user.is_authenticated or current_user.role != "admin":
         return redirect(url_for("home"))
     guides = [dict(u) for u in users_dao.get_users_by_role("guide")]

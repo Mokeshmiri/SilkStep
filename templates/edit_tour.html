@@ -9,7 +9,6 @@
     <div class="alert alert-danger">{{ form_error }}</div>
   {% endif %}
 
-  {# existing photos - each has its own delete form (not nested in main form) #}
   {% if photos %}
   <div class="mb-4">
     <label class="form-label">Current photos ({{ photos|length }}/{{ max_photos }})</label>

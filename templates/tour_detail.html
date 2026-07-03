@@ -3,7 +3,6 @@
 
 {% block content %}
 <section class="container py-5 mw-760">
-  {# tour info #}
   <h1 class="mb-3">{{ tour.title }}</h1>
   <p class="text-muted mb-3">Guide: {{ tour.guide_name }}</p>
   {% if schedule %}
@@ -26,7 +25,6 @@
   {% endif %}
   <p><strong>Max participants:</strong> {{ tour.max_participants or "Not set" }}</p>
 
-  {# route stops from tour_stops table #}
   {% if stops %}
     <h2 class="h6 mt-3">Tour route</h2>
     <ol class="list-group list-group-numbered mb-3">
@@ -41,7 +39,6 @@
     </ol>
   {% endif %}
 
-  {# photo gallery - click opens modal #}
   {% if photos %}
     <h2 class="h6">Tour photos <span class="text-muted small">(click to enlarge)</span></h2>
     <div class="row g-2 mb-3 photo-gallery">
@@ -74,7 +71,6 @@
   {% endif %}
   <p>{{ tour.summary }}</p>
 
-  {# booking - participants only; guides blocked by exam rule #}
   {% if current_user.role == 'participant' %}
     <hr>
     <h2 class="h5 mb-3">Book this tour</h2>
@@ -126,7 +122,6 @@
           placeholder="e.g. 2 adults + 1 child, we prefer slow pace"></textarea>
       </div>
 
-      {# contact for tour updates / announcements - at least one required #}
       <div class="mb-3">
         <label class="form-label">Contact for announcements</label>
         <p class="text-muted small">We use this to send tour updates (time changes, weather, etc.). Give email and/or phone.</p>
@@ -161,7 +156,6 @@
 
   <a href="{{ url_for('tours') }}" class="btn btn-link mt-3 ps-0">← Back to tours</a>
 </section>
-{# fullscreen photo viewer with prev/next #}
 <div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content bg-transparent border-0 position-relative">
@@ -177,7 +171,6 @@
   </div>
 </div>
 
-{# gallery nav: arrows + keyboard #}
 <script>
   const photoModal = document.getElementById("photoModal");
   const photoModalImage = document.getElementById("photoModalImage");
@@ -236,7 +229,6 @@
   }
 </script>
 {% if current_user.is_authenticated and current_user.role == 'participant' %}
-{# live spots left - calls /availability when date changes #}
 <script>
   const tourId = {{ tour.id }};
   const dateInput = document.getElementById("tour_date");
@@ -244,7 +236,6 @@
   const partyInput = document.getElementById("party_size");
   const guestFields = document.getElementById("guest_fields");
   const guestBlocks = Array.from(document.querySelectorAll(".guest-field"));
-  // weekdays this tour runs on (0=Mon ... 6=Sun, same as python)
   const scheduleWeekdays = {{ schedule_weekdays|tojson }};
 
   function isScheduledDay(value) {
@@ -252,7 +243,7 @@
       return true;
     }
     const picked = new Date(value + "T00:00:00");
-    // js getDay() is 0=Sun..6=Sat, convert to python's 0=Mon..6=Sun
+    // js sunday=0, python monday=0
     const pyWeekday = (picked.getDay() + 6) % 7;
     return scheduleWeekdays.includes(pyWeekday);
   }

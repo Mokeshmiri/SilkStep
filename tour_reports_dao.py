@@ -1,14 +1,11 @@
 import os
 import sqlite3
 
-# db path - works on pythonanywhere too
+# db path
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
-
-# post-tour reports: one per (tour, past date) - how many people actually came + a photo
 
 
 def get_report(tour_id, tour_date):
-    # current report for a date, or None if the guide hasnt filed one yet
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     row = conn.execute(
@@ -20,7 +17,6 @@ def get_report(tour_id, tour_date):
 
 
 def save_report(tour_id, tour_date, attended_count, photo_path):
-    # insert or update the report for this date (one per date)
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
         """

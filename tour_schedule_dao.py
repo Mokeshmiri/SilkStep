@@ -1,14 +1,11 @@
 import os
 import sqlite3
 
-# db path - works on pythonanywhere too
+# db path
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
-
-# weekly schedule per tour - weekday 0=Mon ... 6=Sun, one start time per day
 
 
 def get_schedule_for_tour(tour_id):
-    # list of {weekday, start_time} in day order
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
@@ -25,7 +22,6 @@ def get_schedule_for_tour(tour_id):
 
 
 def set_tour_schedule(tour_id, schedule):
-    # schedule = list of {"weekday": int, "start_time": "HH:MM"}; wipe + re-insert
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM tour_schedule WHERE tour_id = ?", (tour_id,))
@@ -40,7 +36,6 @@ def set_tour_schedule(tour_id, schedule):
 
 
 def get_start_time(tour_id, weekday):
-    # start time for a tour on a given weekday, or None if not scheduled
     conn = sqlite3.connect(DB_PATH)
     row = conn.execute(
         "SELECT start_time FROM tour_schedule WHERE tour_id = ? AND weekday = ?",
@@ -51,7 +46,6 @@ def get_start_time(tour_id, weekday):
 
 
 def get_tour_ids_for_weekday(weekday):
-    # set of tour ids that run on this weekday - used by date filter
     conn = sqlite3.connect(DB_PATH)
     rows = conn.execute(
         "SELECT tour_id FROM tour_schedule WHERE weekday = ?",

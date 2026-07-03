@@ -1,8 +1,4 @@
--- silkstep database schema
--- this is the full structure of silkstep.db (the db file is already in the repo,
--- this file is just here as a reference / to rebuild from scratch if needed)
-
--- users: guides, participants and one admin
+-- users -> guides, participants and one admin
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -12,9 +8,9 @@ CREATE TABLE users (
     role TEXT NOT NULL CHECK(role IN ('guide', 'participant', 'admin'))
 );
 
--- tours: each one belongs to a guide
--- schedule/duration are old display-text columns kept for back compat;
--- duration_minutes + the tour_schedule table hold the real structured data
+-- Tours -> Each tour belongs to a guide (guide_id).
+-- schedule and duration are old text fields (display only).
+-- Actual tour times use 'duration_minutes' (length in minutes) and 'tour_schedule' (days & times).
 CREATE TABLE tours (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
@@ -29,7 +25,7 @@ CREATE TABLE tours (
     duration_minutes INTEGER
 );
 
--- which languages a tour is offered in
+-- languages a tour is offered in
 CREATE TABLE tour_languages (
     tour_id INTEGER NOT NULL,
     language TEXT NOT NULL,
@@ -37,7 +33,7 @@ CREATE TABLE tour_languages (
     FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
 
--- languages a guide speaks (a tour's languages must be a subset of these)
+-- languages a guide speaks -> a tours languages must be a subset of these
 CREATE TABLE user_languages (
     user_id INTEGER NOT NULL,
     language TEXT NOT NULL,
@@ -54,7 +50,7 @@ CREATE TABLE tour_schedule (
     FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
 
--- stops along the route (at least 4 per tour)
+-- stops along the route with at least 4 per tour
 CREATE TABLE tour_stops (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tour_id INTEGER NOT NULL,
@@ -64,7 +60,7 @@ CREATE TABLE tour_stops (
     FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
 
--- promotional photos (up to 5 per tour)
+-- promotional photos up to 5 per tour
 CREATE TABLE tour_photos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tour_id INTEGER NOT NULL,
@@ -73,7 +69,7 @@ CREATE TABLE tour_photos (
     FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
 
--- reservations: one row = one booking for a date (1 to 4 people)
+-- reservations: one row = one booking for a date
 CREATE TABLE bookings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tour_id INTEGER NOT NULL,
@@ -89,7 +85,7 @@ CREATE TABLE bookings (
     FOREIGN KEY (participant_id) REFERENCES users(id)
 );
 
--- extra people on a booking (the up-to-3 added names)
+-- extra people on a booking 
 CREATE TABLE booking_guests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     booking_id INTEGER NOT NULL,
@@ -98,7 +94,7 @@ CREATE TABLE booking_guests (
     FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
 
--- post-tour report: for a past date the guide says how many really came + one photo
+-- post tour report: for a past date the guide says how many really came + one photo
 CREATE TABLE tour_reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tour_id INTEGER NOT NULL,

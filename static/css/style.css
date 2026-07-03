@@ -133,7 +133,6 @@ h1 {
   right: 0.5rem;
 }
 
-/* weekly schedule fields on new/edit tour forms */
 .schedule-day {
   min-width: 140px;
 }
@@ -142,7 +141,6 @@ h1 {
   max-width: 140px;
 }
 
-/* max-width helpers so pages dont stretch too wide (kept out of the html) */
 .mw-280 { max-width: 280px; }
 .mw-480 { max-width: 480px; }
 .mw-520 { max-width: 520px; }

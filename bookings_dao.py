@@ -1,14 +1,11 @@
 import os
 import sqlite3
 
-# db path - works on pythonanywhere too
+# db path
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
-
-# bookings table queries
 
 
 def create_booking(tour_id, participant_id, tour_date, party_size, notes, announce_email="", announce_phone=""):
-    # participant books from tour detail form
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(
@@ -25,8 +22,8 @@ def create_booking(tour_id, participant_id, tour_date, party_size, notes, announ
     conn.close()
     return booking_id
 
+
 def add_booking_guests(booking_id, guests):
-    # guests = list of {"first_name": "...", "last_name": "..."}
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     for guest in guests:
@@ -40,6 +37,7 @@ def add_booking_guests(booking_id, guests):
     conn.commit()
     cursor.close()
     conn.close()
+
 
 def get_guests_for_booking(booking_id):
     conn = sqlite3.connect(DB_PATH)
@@ -58,7 +56,6 @@ def get_guests_for_booking(booking_id):
 
 
 def get_bookings_by_participant(participant_id):
-    # my bookings page
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
@@ -79,7 +76,6 @@ def get_bookings_by_participant(participant_id):
 
 
 def get_bookings_by_guide(guide_id):
-    # guide dashboard - bookings on their tours only
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
@@ -101,7 +97,6 @@ def get_bookings_by_guide(guide_id):
 
 
 def get_all_bookings():
-    # admin - every booking with guide + participant info
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(
@@ -123,7 +118,6 @@ def get_all_bookings():
 
 
 def cancel_booking(booking_id, participant_id):
-    # only delete if it belongs to this user
     conn = sqlite3.connect(DB_PATH)
     conn.execute("DELETE FROM bookings WHERE id = ? AND participant_id = ?", (booking_id, participant_id))
     conn.commit()
@@ -131,7 +125,6 @@ def cancel_booking(booking_id, participant_id):
 
 
 def tour_has_bookings(tour_id):
-    # if true, guide cant edit tour anymore
     conn = sqlite3.connect(DB_PATH)
     count = conn.execute("SELECT COUNT(*) FROM bookings WHERE tour_id = ?", (tour_id,)).fetchone()[0]
     conn.close()
@@ -139,7 +132,6 @@ def tour_has_bookings(tour_id):
 
 
 def count_bookings():
-    # admin stat card
     conn = sqlite3.connect(DB_PATH)
     count = conn.execute("SELECT COUNT(*) FROM bookings").fetchone()[0]
     conn.close()
@@ -147,7 +139,6 @@ def count_bookings():
 
 
 def get_booking_by_id(booking_id):
-    # used by cancel route to check owner + start time
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     row = conn.execute(
@@ -159,7 +150,6 @@ def get_booking_by_id(booking_id):
 
 
 def get_booked_spots(tour_id, tour_date):
-    # sum party_size - capacity check in book_tour()
     conn = sqlite3.connect(DB_PATH)
     booked = conn.execute(
         """
@@ -171,9 +161,9 @@ def get_booked_spots(tour_id, tour_date):
     ).fetchone()[0]
     conn.close()
     return booked
-    
+
+
 def get_participant_bookings_on_date(participant_id, tour_date):
-    # all confirmed bookings for this participant on a specific date
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute(

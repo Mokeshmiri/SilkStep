@@ -13,17 +13,15 @@ import users_dao
 import tour_stops_dao
 import tour_schedule_dao
 
-# shared helpers for routes
 AVAILABLE_LANGUAGES = ["Italian", "English", "Spanish", "Portuguese", "German"]
 ALLOWED_PHOTO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
-# weekday order for the weekly schedule - 0=Mon ... 6=Sun (matches date.weekday())
+# weekdays 0=mon ... 6=sun
 WEEKDAYS = [
     (0, "Monday"), (1, "Tuesday"), (2, "Wednesday"), (3, "Thursday"),
     (4, "Friday"), (5, "Saturday"), (6, "Sunday"),
 ]
 
-# buckets for the duration filter on /tours (label, min_minutes, max_minutes)
 DURATION_BUCKETS = [
     ("short", "Up to 2 hours", 0, 120),
     ("medium", "2 to 4 hours", 121, 240),
@@ -31,15 +29,11 @@ DURATION_BUCKETS = [
 ]
 
 
-# --- photo helpers ---
-
 def allowed_photo(filename):
-    # block weird file types on upload
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_PHOTO_EXTENSIONS
 
 
 def save_image(file, prefix):
-    # save one uploaded image to static/uploads, return path like uploads/<prefix>_abc.jpg
     if not file or not file.filename or not allowed_photo(file.filename):
         return ""
     ext = file.filename.rsplit(".", 1)[1].lower()
@@ -52,12 +46,10 @@ def save_image(file, prefix):
 
 
 def save_tour_photo(file, tour_id):
-    # gallery photo for a tour
     return save_image(file, f"tour_{tour_id}")
 
 
 def remove_photo_file(photo_path):
-    # delete file from disk when removing a gallery photo
     if not photo_path or photo_path.startswith("http"):
         return
     file_path = os.path.join(current_app.root_path, "static", photo_path)
@@ -66,7 +58,6 @@ def remove_photo_file(photo_path):
 
 
 def cleanup_tour_photo_files(tour_id):
-    # remove gallery + cover image files from disk before deleting a tour row
     for photo in tour_photos_dao.get_photos_for_tour(tour_id):
         remove_photo_file(photo["photo_path"])
     tour = tours_dao.get_tour_by_id(tour_id)
@@ -75,7 +66,6 @@ def cleanup_tour_photo_files(tour_id):
 
 
 def save_uploaded_photos(tour_id, files):
-    # loop file input - stops at 5 photos per tour
     for file in files:
         if tour_photos_dao.count_photos_for_tour(tour_id) >= tour_photos_dao.MAX_PHOTOS_PER_TOUR:
             break
@@ -85,7 +75,6 @@ def save_uploaded_photos(tour_id, files):
 
 
 def sync_tour_cover_photo(tour_id):
-    # first gallery photo becomes the card thumbnail on home/tours
     photos = tour_photos_dao.get_photos_for_tour(tour_id)
     cover = photos[0]["photo_path"] if photos else ""
     tour = tours_dao.get_tour_by_id(tour_id)
@@ -100,7 +89,6 @@ def sync_tour_cover_photo(tour_id):
 
 
 def tour_photo_src(photo_url):
-    # turn db path into full url for img src
     if not photo_url:
         return ""
     if photo_url.startswith("http"):
@@ -109,7 +97,6 @@ def tour_photo_src(photo_url):
 
 
 def tour_dict(row):
-    # add photo_src for tour cards on home/tours pages
     data = dict(row)
     photos = tour_photos_dao.get_photos_for_tour(data["id"])
     if photos:
@@ -120,7 +107,6 @@ def tour_dict(row):
 
 
 def can_manage_tour(tour_id):
-    # guide owns tour, or admin - used before edit/delete
     tour = tours_dao.get_tour_by_id(tour_id)
     if not tour or not current_user.is_authenticated:
         return None
@@ -132,7 +118,6 @@ def can_manage_tour(tour_id):
 
 
 def parse_max_participants(raw_value, default=15):
-    # safe int from form - party size and max participants
     try:
         return max(1, int(raw_value))
     except (TypeError, ValueError):
@@ -140,7 +125,6 @@ def parse_max_participants(raw_value, default=15):
 
 
 def edit_tour_context(tour_id, tour_row, use_form=False):
-    # bundle tour + photos + languages for edit_tour.html (also on validation error)
     tour_data = dict(tour_row)
     if use_form:
         tour_data.update({
@@ -179,7 +163,6 @@ def edit_tour_context(tour_id, tour_row, use_form=False):
 
 
 def new_tour_form_data():
-    # keep form values when validation fails on create tour
     return {
         "title": request.form.get("txt_title", ""),
         "summary": request.form.get("txt_summary", ""),
@@ -192,20 +175,16 @@ def new_tour_form_data():
 
 
 def filter_languages(selected, allowed=None):
-    # keep only languages that are allowed (the fixed 5, or a guide's own languages)
     allowed = allowed if allowed is not None else AVAILABLE_LANGUAGES
     return [lang for lang in selected if lang in allowed]
 
 
 def tour_language_options(guide_id):
-    # a tour's languages must come from the guide's spoken languages
     langs = users_dao.get_user_languages(guide_id) if guide_id else []
-    # fallback for old tours with no guide languages set
     return langs or AVAILABLE_LANGUAGES
 
 
 def booking_start_datetime(tour_id, tour_date):
-    # combine the booked date with the tour's start time for that weekday
     try:
         day = datetime.strptime(tour_date, "%Y-%m-%d").date()
     except (TypeError, ValueError):
@@ -221,7 +200,6 @@ def booking_start_datetime(tour_id, tour_date):
 
 
 def parse_stops_from_form():
-    # form sends txt_stop_name_1, txt_stop_desc_1, ... guides can add more via js
     stops = []
     for i in range(1, tour_stops_dao.MAX_STOPS_PER_TOUR + 1):
         name = request.form.get(f"txt_stop_name_{i}", "").strip()
@@ -232,7 +210,6 @@ def parse_stops_from_form():
 
 
 def parse_schedule_from_form():
-    # form sends a checkbox txt_day_<idx> + a time txt_time_<idx> for each weekday
     schedule = []
     for idx, _name in WEEKDAYS:
         if request.form.get(f"txt_day_{idx}"):
@@ -243,19 +220,16 @@ def parse_schedule_from_form():
 
 
 def schedule_to_map(schedule):
-    # {weekday_int: "HH:MM"} so the form can pre-check days and fill times
     return {item["weekday"]: item["start_time"] for item in schedule}
 
 
 def schedule_display(schedule):
-    # short text like "Sat 10:00, Sun 14:00" for the legacy schedule column / cards
     names = dict(WEEKDAYS)
     ordered = sorted(schedule, key=lambda item: item["weekday"])
     return ", ".join(f"{names[item['weekday']][:3]} {item['start_time']}" for item in ordered)
 
 
 def parse_duration_minutes():
-    # structured duration in minutes; None when the form value is missing/invalid
     try:
         return max(15, int(request.form.get("txt_duration_minutes", "")))
     except (TypeError, ValueError):
@@ -263,7 +237,6 @@ def parse_duration_minutes():
 
 
 def parse_booking_guests(party_size):
-    # party_size includes the logged-in participant, so guests are party_size - 1
     guests = []
     extra_count = max(0, party_size - 1)
 

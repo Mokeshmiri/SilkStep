@@ -11,7 +11,6 @@
         <div class="alert alert-danger">{{ form_error }}</div>
       {% endif %}
 
-      {# register as participant or guide; guides also pick spoken languages #}
       <form method="POST" action="{{ url_for('register') }}">
         <div class="mb-3">
           <label class="form-label">First name</label>
@@ -38,7 +37,6 @@
           </select>
         </div>
 
-        {# only relevant for guides - the languages they can run tours in #}
         <div class="mb-3 {% if form.role != 'guide' %}d-none{% endif %}" id="guide_languages">
           <label class="form-label">Languages you speak</label>
           <p class="text-muted small mb-2">Your tours can only be offered in these languages.</p>
@@ -55,7 +53,6 @@
         <button type="submit" class="btn btn-primary w-100">Register</button>
       </form>
 
-      {# show/hide the language block when the role changes #}
       <script>
         const roleSelect = document.getElementById("role_select");
         const guideLanguages = document.getElementById("guide_languages");
