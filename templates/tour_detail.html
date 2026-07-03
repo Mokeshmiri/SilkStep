@@ -243,7 +243,7 @@
       return true;
     }
     const picked = new Date(value + "T00:00:00");
-    // js sunday=0, python monday=0
+    // js uses sunday as 0, python uses monday as 0
     const pyWeekday = (picked.getDay() + 6) % 7;
     return scheduleWeekdays.includes(pyWeekday);
   }

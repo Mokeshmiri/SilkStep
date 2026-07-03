@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-# db path
+# database file path
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "silkstep.db")
 
 MIN_STOPS_PER_TOUR = 4

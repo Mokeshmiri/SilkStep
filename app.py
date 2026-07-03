@@ -56,7 +56,7 @@ def tours():
         rows = tours_dao.get_tours()
     tour_list = [tour_dict(row) for row in rows]
 
-    # filter by weekday when a date is picked
+    # date filter checks the weekday of the selected date
     if selected_date:
         try:
             weekday = datetime.strptime(selected_date, "%Y-%m-%d").weekday()
@@ -184,7 +184,7 @@ def logout():
 
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
-    # fake reset - no email sent, just checks the account exists
+    # demo reset: no real email is sent
     if request.method == "POST":
         email = request.form.get("txt_email", "").strip()
         if not email:
@@ -357,7 +357,7 @@ def edit_tour(tour_id):
     tour = can_manage_tour(tour_id)
     if not tour:
         return redirect(url_for("tours"))
-    # cant edit after first booking (admin still can)
+    # guide cannot edit after someone books; admin can
     if current_user.role != "admin" and bookings_dao.tour_has_bookings(tour_id):
         return redirect(url_for("tours", error="This tour already has bookings and cannot be edited."))
     if request.method == "POST":

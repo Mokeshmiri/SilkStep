@@ -9,9 +9,9 @@ free walking tours in tehran. tagline: *every step tells a story.*
 
 ## what it is
 
-small flask app for booking walking tours. one city (tehran), many tours. guides create tours, people book a date, admin can see stats.
+small flask app for booking free walking tours in tehran. guides create tours, participants book dates, and admin can check the platform activity.
 
-inspired by stuff like persian walk / freetour but built for the exam project.
+inspired by free walking tour websites, but made for this exam project and focused on tehran.
 
 ---
 
@@ -22,6 +22,8 @@ inspired by stuff like persian walk / freetour but built for the exam project.
 - flask-login (sessions / roles)
 - bootstrap 5
 - html templates + a bit of css/js
+
+note: this is an exam/demo project. flask-login is used for sessions.
 
 **target device: desktop** (designed for desktop browsers; layout still works smaller thanks to bootstrap, but desktop is the target).
 
@@ -56,11 +58,11 @@ you can register as a **participant** or a **guide** (guides also pick the langu
 
 ## main features (exam requirements)
 
-- two user types: guides + participants (guide cant book, participant cant create)
+- two user types: guides + participants (guides cannot book tours, participants cannot create tours)
 - a guide keeps the languages they speak on their profile (set at registration,
   editable later); when they create a tour they only see those languages to pick from
 - tours with: title, weekly schedule (day + start time), meeting point, duration
-  in minutes, language(s), max participants, 4+ stops, description, up to 5 photos
+  in minutes, language(s), max participants, 4+ stops, description, and 5 promotional photos
 - home + tours list, filter by **date / duration / language**
 - tour detail + booking: pick a date from the weekly schedule, 1-4 people
   (add up to 3 names), capacity check per date, email/phone for announcements
@@ -70,9 +72,9 @@ you can register as a **participant** or a **guide** (guides also pick the langu
 - post-tour report: for past dates with bookings, declare attendance + 1 photo
 - each tour poster also shows which guide posted it
 - guide: create/edit/delete tours (locked after the first booking)
-- admin: a simple monitoring page for myself - counts + guides (with languages) +
+- admin: optional prova finale account - counts + guides (with languages) +
   participants + all bookings. admin still has full access (can edit/delete any tour).
-  it's not part of the exam minimum, i just made it to watch the site
+  it is included for the optional prova finale requirement.
 - contact page + editable profile + change password + navbar dropdown
 
 ---
@@ -99,7 +101,7 @@ extra stuff i added on top of the exam minimum:
 - navbar name dropdown (profile, dashboard, logout)
 - form validation errors stay on the same page (not a blank 400)
 - tour stops (4+ per route) on create/edit + tour detail page
-- editable profile, forgot password, booking contact email/phone
+- editable profile, demo forgot-password page, booking contact email/phone
 
 **brand name**
 
