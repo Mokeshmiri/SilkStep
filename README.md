@@ -56,7 +56,7 @@ you can register as a **participant** or a **guide** (guides also pick the langu
 
 ---
 
-## main features (exam requirements)
+## main features according to project's requirements
 
 - two user types: guides + participants (guides cannot book tours, participants cannot create tours)
 - a guide keeps the languages they speak on their profile (set at registration,
@@ -79,9 +79,9 @@ you can register as a **participant** or a **guide** (guides also pick the langu
 
 ---
 
-## extra features (beyond minimum)
+## extra features 
 
-extra stuff i added on top of the exam minimum:
+extra stuff i added beyond what was needed:
 
 **homepage highlights** (three boxes under the hero banner):
 
@@ -132,7 +132,7 @@ from app import app as application
 
 ---
 
-## project structure (short)
+## project structure 
 
 ```
 app.py              routes + flask-login
