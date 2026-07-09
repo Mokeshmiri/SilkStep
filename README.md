@@ -1,120 +1,116 @@
-# silkstep
+# SilkStep
 
-course: Introduction to Web Applications (2025/2026)  
-student: Mohammad Keshmiri - s308968
+**Every step tells a story.**
 
-free walking tours in tehran. tagline: *every step tells a story.*
+Free walking tours in Tehran — a full-stack web app for discovering routes, booking dates, and managing tours with local guides.
 
----
+> **University project** — built for *Introduction to Web Applications* (2025/2026)  
+> **Author:** Mohammad Keshmiri · `s308968`
 
-## what it is
-
-small flask app for booking free walking tours in tehran. guides create tours, participants book dates, and admin can check the platform activity.
-
-inspired by free walking tour websites, but made for this exam project and focused on tehran.
+**Live demo:** [mokeshmiri.pythonanywhere.com](https://mokeshmiri.pythonanywhere.com)  
+**Repository:** [github.com/Mokeshmiri/SilkStep](https://github.com/Mokeshmiri/SilkStep)
 
 ---
 
-## tech
+## Preview
 
-- python + flask
-- sqlite (`silkstep.db`)
-- flask-login (sessions / roles)
-- bootstrap 5
-- html templates + a bit of css/js
-
-note: this is an exam/demo project. flask-login is used for sessions.
-
-**target device: desktop** (designed for desktop browsers; layout still works smaller thanks to bootstrap, but desktop is the target).
+![SilkStep homepage — hero banner and feature highlights](static/images/homepage-preview.png)
 
 ---
 
-## run locally
+## About
+
+SilkStep is a Flask web application inspired by free walking tour platforms, tailored for Tehran and Silk Road heritage routes. Guides publish weekly tours; participants browse, filter, and book spots; admins can review platform activity.
+
+This repo is a coursework submission and portfolio piece — not a production service.
+
+---
+
+## Tech stack
+
+| Layer | Tools |
+|-------|--------|
+| Backend | Python, Flask, Flask-Login |
+| Database | SQLite (`silkstep.db`) |
+| Frontend | HTML templates, Bootstrap 5, custom CSS/JS |
+
+**Target device:** desktop (Bootstrap keeps layouts usable on smaller screens).
+
+---
+
+## Run locally
 
 ```bash
 pip install -r requirements.txt
 python3 app.py
 ```
 
-open: http://127.0.0.1:5001
+Open [http://127.0.0.1:5001](http://127.0.0.1:5001).
 
-(db is already in the repo - no extra setup needed on my machine)
+The SQLite database is included with sample data — no extra setup needed.
 
 ---
 
-## test accounts
+## Test accounts
 
-see `credentials.txt` for full list. quick ones:
+See `credentials.txt` for the full list. Quick logins:
 
-| role | email | password |
+| Role | Email | Password |
 |------|-------|----------|
-| guide | guide1@test.com | pass123 |
-| participant | user1@test.com | pass123 |
-| admin | admin@test.com | admin123 |
+| Guide | guide1@test.com | pass123 |
+| Participant | user1@test.com | pass123 |
+| Admin | admin@test.com | admin123 |
 
-you can register as a **participant** or a **guide** (guides also pick the languages they speak, and can change them later from their profile). the **admin** account is seed-only.
-
----
-
-## main features according to project's requirements
-
-- two user types: guides + participants (guides cannot book tours, participants cannot create tours)
-- a guide keeps the languages they speak on their profile (set at registration,
-  editable later); when they create a tour they only see those languages to pick from
-- tours with: title, weekly schedule (day + start time), meeting point, duration
-  in minutes, language(s), max participants, 4+ stops, description, and 5 promotional photos
-- home + tours list, filter by **date / duration / language**
-- tour detail + booking: pick a date from the weekly schedule, 1-4 people
-  (add up to 3 names), capacity check per date, email/phone for announcements
-- cancel only allowed up to 24h before the start time
-- participant profile (my bookings): date, start time, meeting point, people, names
-- guide profile: reservations grouped per date with total expected people
-- post-tour report: for past dates with bookings, declare attendance + 1 photo
-- each tour poster also shows which guide posted it
-- guide: create/edit/delete tours (locked after the first booking)
-- admin: optional prova finale account - counts + guides (with languages) +
-  participants + all bookings. admin still has full access (can edit/delete any tour).
-  it is included for the optional prova finale requirement.
-- contact page + editable profile + change password + navbar dropdown
+You can register as a **participant** or **guide** (guides set spoken languages at signup and can edit them later). The **admin** account is seed-only.
 
 ---
 
-## extra features 
+## Features
 
-extra stuff i added beyond what was needed:
+### Core (course requirements)
 
-**homepage highlights** (three boxes under the hero banner):
+- **Two roles:** guides create tours; participants book them (roles are enforced)
+- **Guide languages:** stored on profile; only those languages appear when creating a tour
+- **Tours:** title, weekly schedule (day + start time), meeting point, duration, language(s), max participants, 4+ stops, description, and 5 promotional photos
+- **Browse & filter:** home + tours list, filter by date, duration, and language
+- **Booking:** pick a date from the weekly schedule, 1–4 people (with names), capacity check per date, contact email/phone
+- **Cancellation:** allowed only up to 24 hours before start time
+- **Participant dashboard:** my bookings with date, time, meeting point, and party size
+- **Guide dashboard:** reservations grouped by date with total expected attendees
+- **Post-tour report:** for past dates with bookings — attendance + one photo
+- **Tour management:** guides create, edit, and delete tours (locked after the first booking)
+- **Admin panel:** counts, guides (with languages), participants, and all bookings
+- **Account:** contact page, editable profile, change password, navbar dropdown
 
-| box | what it means |
-|-----|----------------|
-| free to join | tours can be free - no paywall to browse or book |
-| local guides | tours are run by tehran guides, not a generic catalog |
-| tehran heritage routes | themed walks around historic tehran / silk road vibe |
+### Extras
 
-**ui polish**
+**Homepage highlights** (three cards under the hero):
 
-- hero banner with gradient + tagline (*every step tells a story*)
-- hero background image on the home page (`static/images/bg.jpg`)
-- square tour cards (`aspect-ratio 1:1`) so the grid looks even
-- photo gallery modal with prev/next arrows + keyboard (left/right keys)
-- live spots-left on booking form (calls `/tour/<id>/availability` when you pick a date)
-- navbar name dropdown (profile, dashboard, logout)
-- form validation errors stay on the same page (not a blank 400)
-- tour stops (4+ per route) on create/edit + tour detail page
-- editable profile, demo forgot-password page, booking contact email/phone
+| Card | Description |
+|------|-------------|
+| Free to join | No paywall to browse or book — tip your guide if you like |
+| Local guides | Real Tehran guides, not a generic catalog |
+| Tehran heritage routes | Themed walks around historic Tehran |
 
-**brand name**
+**UI polish**
 
-- shown as **silk step** (two words) on the home hero - reads easier than one glued word
+- Hero banner with gradient, tagline, and Tehran skyline background
+- Square tour cards (`aspect-ratio 1:1`) for an even grid
+- Photo gallery modal with prev/next arrows and keyboard navigation
+- Live spots-left on the booking form (`/tour/<id>/availability`)
+- Navbar name dropdown (profile, dashboard, logout)
+- Form validation errors stay on the same page
+- Tour stops on create/edit and tour detail pages
+- Demo forgot-password page
 
 ---
 
-## deploy (pythonanywhere)
+## Deploy (PythonAnywhere)
 
-1. upload the project folder (or push to github and clone it on pythonanywhere).
-2. make a virtualenv and `pip install -r requirements.txt`.
-3. add a new web app -> manual config -> flask, point it at the venv.
-4. edit the wsgi file so it imports the app, e.g.:
+1. Upload the project folder (or clone from GitHub).
+2. Create a virtualenv and run `pip install -r requirements.txt`.
+3. Add a new web app → manual config → Flask, pointing at the venv.
+4. Edit the WSGI file to import the app:
 
 ```python
 import sys
@@ -124,27 +120,31 @@ if path not in sys.path:
 from app import app as application
 ```
 
-5. set the static files mapping: url `/static/` -> `/home/<username>/SilkStep/static`.
-6. make sure `silkstep.db` is uploaded too (it already has the sample data).
-7. reload the web app.
-
-**live site:** https://mokeshmiri.pythonanywhere.com
+5. Map static files: URL `/static/` → `/home/<username>/SilkStep/static`.
+6. Ensure `silkstep.db` is uploaded (includes sample data).
+7. Reload the web app.
 
 ---
 
-## project structure 
+## Project structure
 
 ```
-app.py              routes + flask-login
-helpers.py          small helper functions (photos, schedule, parsing) - keeps app.py short
-*_dao.py            database stuff (one file per table-ish)
-user_model.py       user class for flask-login
-templates/          html pages
+app.py              routes + Flask-Login
+helpers.py          photo, schedule, and parsing helpers
+*_dao.py            database access (one file per domain)
+user_model.py       user class for Flask-Login
+templates/          HTML pages
 static/css/         custom styles
-static/images/      home page background (bg.jpg)
+static/images/      backgrounds and README preview image
 static/uploads/     tour photos
-schema.sql          full db structure (reference)
+schema.sql          full DB structure (reference)
 seed.sql            sample accounts
-silkstep.db         the actual sqlite db (already filled)
-credentials.txt     exam test logins
+silkstep.db         SQLite database with sample data
+credentials.txt     test logins
 ```
+
+---
+
+## License
+
+[MIT](LICENSE) © 2026 Mo Keshmiri
