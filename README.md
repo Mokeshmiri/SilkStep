@@ -1,149 +1,110 @@
+<div align="center">
+
 # SilkStep
 
-**Every step tells a story.**
+### Every step tells a story.
 
-Free walking tours in Tehran — a full-stack web app for discovering routes, booking dates, and managing tours with local guides.
+A full-stack platform for discovering, publishing, and booking local walking tours in Tehran.
 
-> **University project** — built for *Introduction to Web Applications* (2025/2026)  
-> **Author:** Mohammad Keshmiri · `s308968`
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.1-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 
-**Live demo:** [mokeshmiri.pythonanywhere.com](https://mokeshmiri.pythonanywhere.com)  
-**Repository:** [github.com/Mokeshmiri/SilkStep](https://github.com/Mokeshmiri/SilkStep)
+**[Run locally](#run-locally)** · **[Explore features](#core-features)** · **[View architecture](#technical-overview)**
 
----
+</div>
 
-## Preview
+![SilkStep homepage with a Tehran tour hero and featured walking tours](static/images/homepage-preview.png)
 
-![SilkStep homepage — hero banner and feature highlights](static/images/homepage-preview.png)
+## Overview
 
----
+SilkStep connects local guides with people looking for themed walking tours. Guides manage tour content and schedules, participants book a date and party size, and administrators review platform activity.
 
-## About
+The project demonstrates an end-to-end web workflow: role-based authentication, relational data, business-rule validation, image handling, responsive server-rendered pages, and dashboards for three user types.
 
-SilkStep is a Flask web application inspired by free walking tour platforms, tailored for Tehran and Silk Road heritage routes. Guides publish weekly tours; participants browse, filter, and book spots; admins can review platform activity.
+> Built by **Mohammad Keshmiri** (`s308968`) for *Introduction to Web Applications*, 2025/2026. This repository is a coursework project, not a production booking service.
 
-This repo is a coursework submission and portfolio piece — not a production service.
+## Core features
 
----
+- **Tour discovery** — browse Tehran routes and filter by date, duration, and language
+- **Guide workspace** — publish tours, manage schedules, review reservations, and submit post-tour reports
+- **Participant booking** — choose a tour date, reserve for 1–4 people, and manage upcoming bookings
+- **Capacity rules** — availability is calculated per tour date and validated before each booking
+- **Role-based access** — separate participant, guide, and administrator permissions
+- **Admin overview** — inspect users, tours, bookings, and platform totals
+- **Operational safeguards** — cancellation deadlines and content locks after the first booking
 
-## Tech stack
+## Technical overview
 
-| Layer | Tools |
-|-------|--------|
+| Area | Implementation |
+| --- | --- |
 | Backend | Python, Flask, Flask-Login |
-| Database | SQLite (`silkstep.db`) |
-| Frontend | HTML templates, Bootstrap 5, custom CSS/JS |
+| Data | SQLite, SQL schema and seed data, domain-specific DAO modules |
+| Frontend | Jinja templates, Bootstrap 5, custom CSS and JavaScript |
+| Authentication | Session-based login with role checks on protected routes |
+| Validation | Server-side capacity, schedule, ownership, and deadline rules |
+| Media | Tour galleries, promotional images, and post-tour photo uploads |
 
-**Target device:** desktop (Bootstrap keeps layouts usable on smaller screens).
-
----
+```text
+Browser → Flask routes → validation and role checks → DAO modules → SQLite
+              ↓
+       Jinja templates + Bootstrap UI
+```
 
 ## Run locally
+
+### 1. Create a virtual environment
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+On Windows, activate it with `.venv\Scripts\activate`.
+
+### 2. Install and start
 
 ```bash
 pip install -r requirements.txt
 python3 app.py
 ```
 
-Open [http://127.0.0.1:5001](http://127.0.0.1:5001).
+Open [http://127.0.0.1:5001](http://127.0.0.1:5001). The included SQLite database already contains sample tours and accounts.
 
-The SQLite database is included with sample data — no extra setup needed.
-
----
-
-## Test accounts
-
-See `credentials.txt` for the full list. Quick logins:
+## Demo accounts
 
 | Role | Email | Password |
-|------|-------|----------|
-| Guide | guide1@test.com | pass123 |
-| Participant | user1@test.com | pass123 |
-| Admin | admin@test.com | admin123 |
+| --- | --- | --- |
+| Guide | `guide1@test.com` | `pass123` |
+| Participant | `user1@test.com` | `pass123` |
+| Admin | `admin@test.com` | `admin123` |
 
-You can register as a **participant** or **guide** (guides set spoken languages at signup and can edit them later). The **admin** account is seed-only.
-
----
-
-## Features
-
-### Core (course requirements)
-
-- **Two roles:** guides create tours; participants book them (roles are enforced)
-- **Guide languages:** stored on profile; only those languages appear when creating a tour
-- **Tours:** title, weekly schedule (day + start time), meeting point, duration, language(s), max participants, 4+ stops, description, and 5 promotional photos
-- **Browse & filter:** home + tours list, filter by date, duration, and language
-- **Booking:** pick a date from the weekly schedule, 1–4 people (with names), capacity check per date, contact email/phone
-- **Cancellation:** allowed only up to 24 hours before start time
-- **Participant dashboard:** my bookings with date, time, meeting point, and party size
-- **Guide dashboard:** reservations grouped by date with total expected attendees
-- **Post-tour report:** for past dates with bookings — attendance + one photo
-- **Tour management:** guides create, edit, and delete tours (locked after the first booking)
-- **Admin panel:** counts, guides (with languages), participants, and all bookings
-- **Account:** contact page, editable profile, change password, navbar dropdown
-
-### Extras
-
-**Homepage highlights** (three cards under the hero):
-
-| Card | Description |
-|------|-------------|
-| Free to join | No paywall to browse or book — tip your guide if you like |
-| Local guides | Real Tehran guides, not a generic catalog |
-| Tehran heritage routes | Themed walks around historic Tehran |
-
-**UI polish**
-
-- Hero banner with gradient, tagline, and Tehran skyline background
-- Square tour cards (`aspect-ratio 1:1`) for an even grid
-- Photo gallery modal with prev/next arrows and keyboard navigation
-- Live spots-left on the booking form (`/tour/<id>/availability`)
-- Navbar name dropdown (profile, dashboard, logout)
-- Form validation errors stay on the same page
-- Tour stops on create/edit and tour detail pages
-- Demo forgot-password page
-
----
-
-## Deploy (PythonAnywhere)
-
-1. Upload the project folder (or clone from GitHub).
-2. Create a virtualenv and run `pip install -r requirements.txt`.
-3. Add a new web app → manual config → Flask, pointing at the venv.
-4. Edit the WSGI file to import the app:
-
-```python
-import sys
-path = "/home/<username>/SilkStep"
-if path not in sys.path:
-    sys.path.append(path)
-from app import app as application
-```
-
-5. Map static files: URL `/static/` → `/home/<username>/SilkStep/static`.
-6. Ensure `silkstep.db` is uploaded (includes sample data).
-7. Reload the web app.
-
----
+Additional sample logins are listed in `credentials.txt`. These credentials are for local demonstration only.
 
 ## Project structure
 
-```
-app.py              routes + Flask-Login
-helpers.py          photo, schedule, and parsing helpers
-*_dao.py            database access (one file per domain)
-user_model.py       user class for Flask-Login
-templates/          HTML pages
-static/css/         custom styles
-static/images/      backgrounds and README preview image
-static/uploads/     tour photos
-schema.sql          full DB structure (reference)
-seed.sql            sample accounts
-silkstep.db         SQLite database with sample data
-credentials.txt     test logins
+```text
+app.py              Flask routes and application setup
+helpers.py          schedule, image, and parsing helpers
+*_dao.py            database access grouped by domain
+user_model.py       Flask-Login user model
+templates/          server-rendered pages
+static/css/         application styles
+static/images/      interface and README images
+static/uploads/     sample tour media
+schema.sql          database structure
+seed.sql            sample records
+silkstep.db         ready-to-run local database
 ```
 
----
+## Selected UI details
+
+- Responsive tour grid and Tehran-inspired visual identity
+- Image gallery with keyboard and previous/next navigation
+- Live availability feedback on the booking form
+- Context-aware navigation for each authenticated role
+- Inline validation that keeps submitted values on the page
 
 ## License
 
