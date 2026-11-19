@@ -11,7 +11,7 @@ A full-stack platform for discovering, publishing, and booking local walking tou
 [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 
-**[Live demo](https://mokeshmiri.pythonanywhere.com)** · **[Run locally](#run-locally)** · **[Explore features](#core-features)** · **[View architecture](#technical-overview)**
+**[Run locally](#run-locally)** · **[Explore features](#core-features)** · **[View architecture](#technical-overview)**
 
 </div>
 
