@@ -1,0 +1,2 @@
+# Count the Flask backend, not the Jinja templates, in GitHub's language bar
+*.html linguist-detectable=false
